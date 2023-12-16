@@ -1,7 +1,4 @@
 var groundSprites
-var GROUND_SPRITE_WIDTH = 50
-var GROUND_SPRITE_HEIGHT = 50
-var numGroundSprites
 var GRAVITY = 0.5
 var JUMP = -12
 var isGameOver
@@ -12,16 +9,25 @@ var platforms = new Array()
 var zombies = new Array()
 var onTop
 var zombie
-var a
+var heart = new Array()
+var lifeCounter
 
-// var plat
-var flag = false
+var keys = new Array()
+var gates = new Array()
+
+let bullets = []
+let s = 40
 
 let playerSkin
 let playerSkinR
 let ground
 let zombie1
 let zombie1R
+let life
+let nolife
+let gate
+let openGate
+let key
 
 function preload() {
     playerSkin = loadImage('assets/p-skin.png')
@@ -29,6 +35,15 @@ function preload() {
     ground = loadImage('assets/ground.jpg')
     zombie1 = loadImage('assets/zombie1.png')
     zombie1R = loadImage('assets/zombie1R.png')
+
+    life = loadImage('assets/life.png')
+    nolife = loadImage('assets/nolife.png')
+
+    zombieCounter = loadImage('assets/zombieCounter.png')
+
+    gate = loadImage('assets/gate.png')
+    openGate = loadImage('assets/openGate.png')
+    key = loadImage('assets/key.png')
 }
 
 function setup() {
@@ -40,20 +55,13 @@ function setup() {
 
     groundSprites = new Group()
 
-    numGroundSprites = width / GROUND_SPRITE_WIDTH + 1
-    for (var n = -11; n < numGroundSprites -9; n++) {
-        var groundSprite = createSprite(
-            n * 50,
-            height - 25,
-            GROUND_SPRITE_WIDTH,
-            GROUND_SPRITE_HEIGHT
-        )
+    for (var n = -10; n < (width / 50 + 1) - 8; n++) {
+        var groundSprite = createSprite(n * 50, height - 25, 50, 50)
 
         groundSprite.addImage(ground)
         ground.resize(50, 50)
 
         groundSprites.add(groundSprite)
-        
     } 
 
     player = createSprite(100, 500)
@@ -67,7 +75,24 @@ function setup() {
     }
 
     for(let i = 0; i < 1;  i++) {
-        zombies[i] = new Zombie(300, 515, 2, 2, createSprite())
+        zombies[i] = new Zombie(300, 515, 5, 2, createSprite())
+    }
+
+    for(let i = 0; i < 10; i++) {
+        heart[i] = createSprite()
+        heart[i].addImage(life)
+    }
+    life.resize(0, 30)
+    nolife.resize(0, 30)
+    lifeCounter = 10
+
+    zombieCounter.resize(0, 70)
+
+    for(let i = 0; i < 1;  i++) {
+        keys[i] = new Key(1000, 450, false)
+    }
+    for(let i = 0; i < 1;  i++) {
+        gates[i] = new Gate(1300, 450, false)
     }
 
 }
@@ -77,24 +102,34 @@ function draw() {
         background(0)
         fill(255)
         textAlign(CENTER)
-        text('Your score was: ' + score, camera.position.x, camera.position.y - 20)
-        text('Game Over! Click anywhere to restart', camera.position.x, camera.position.y)
+        textSize(18)
+        text('You kill ' + score + ' zombies : ', camera.position.x, camera.position.y - 20)
+        text('Game Over! Click anywhere to restart (or better just refresh the page)', camera.position.x, camera.position.y)
     }else{
         background(150, 200, 250)
 
         player.velocity.y = player.velocity.y + GRAVITY
-
         camera.position.x = player.position.x + 5
 
-        if (player.position.x > groundSprites[numGroundSprites-13].position.x) {
+        if (player.velocity.x > -0.1 && player.velocity.x < 0.1) {
+            player.velocity.x = 0
+        }else if (player.velocity.x < 0) {
+            player.velocity.x = player.velocity.x + 0.2
+        }else if (player.velocity.x > 0) {
+            player.velocity.x = player.velocity.x - 0.2
+        }
+
+
+        if (player.position.x > groundSprites[14].position.x) {
             for (g of groundSprites) {
                 g.position.x += 50
             }
-        }else if (player.position.x < groundSprites[numGroundSprites-13].position.x){
+        }else if (player.position.x < groundSprites[14].position.x) {
             for (g of groundSprites) {
                 g.position.x -= 50
             }
-        }
+        }        
+
 
         if (groundSprites.overlap(player)) {
             player.velocity.y = 0
@@ -115,74 +150,107 @@ function draw() {
 
         zombies.forEach((z) => z.checkContact());
         zombies.forEach((z) => z.move());
-        
 
-        if (keyDown(UP_ARROW) && (groundSprites.overlap(player) || onTop)) {
+        zombies.forEach((z) => z.takeDamage());
+
+        keys.forEach((k) => k.drawKey());
+        keys.forEach((k) => k.checkContact());
+
+        gates.forEach((g) => g.drawGate());
+        gates.forEach((g) => g.checkContact());
+
+                    
+        for (let i = 0; i < 10; i++) {
+            heart[i].position.x = camera.position.x - 550 + i*32
+            heart[i].position.y = camera.position.y - 250
+        }
+        for (let i = lifeCounter; i < 10; i++) {
+            heart[i].addImage(nolife)
+        }
+        
+        image(zombieCounter, player.position.x - 40, 10)
+        textSize(28)
+        fill(200, 0, 0)
+        text(score, player.position.x + 60, 60)
+
+
+        for (b of bullets) {
+            b.x += b.s / 4
+            circle(b.x, b.y, 10)
+            if ((b.x > player.position.x + 400) || (b.x < player.position.x - 400)) {
+                bullets.pop(b)
+            }
+        }
+
+
+        if (keyIsDown(87) && (groundSprites.overlap(player) || onTop)) {
             player.velocity.y = JUMP
         }
-        if (keyDown(RIGHT_ARROW)) {
+        if (keyIsDown(68)) {
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
             player.addImage(playerSkin)
+            s = 40
         }
-        if (keyDown(LEFT_ARROW)) {
+        if (keyIsDown(65)) {
             player.position.x = player.position.x - 5
             camera.position.x = player.position.x - 5
             player.addImage(playerSkinR)
+            s = -40
         }
-        if (keyDown(DOWN_ARROW)) {
+
+        if (keyIsDown(32)) {
             text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
+            text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
             text('----------------', player.position.x - 100, player.position.y)
             text('|\n|\n|\n|', player.position.x, player.position.y - 110)
-
             text('----------------', player.position.x + 40, player.position.y)
             text('|\n|\n|\n|', player.position.x, player.position.y + 70)
         }
 
-        // var firstGroundSprite = groundSprites[0]
-        // if (firstGroundSprite.position.x <= camera.position.x - (width / 2 + firstGroundSprite.width / 2)) {
-        //     groundSprites.remove(firstGroundSprite)
-        //     firstGroundSprite.position.x = firstGroundSprite.position.x + numGroundSprites * firstGroundSprite.width
-        //     groundSprites.add(firstGroundSprite)
-        // }
+        if (lifeCounter === 0) {
+            endGame()
+        }
 
-    
-        // if (platformSprites.length > 0 && platformSprites[0].position.x <= camera.position.x - (width / 2 + platformSprites[0].width / 2)) {
-        //     removeSprite(platformSprites[0])
-        // }
-
-
-        // platformSprites.overlap(player, endGame)
         drawSprites()
-        // score = score + 1
-        textAlign(CENTER)
-        text(score, camera.position.x, 20)
     }
 
 }
+
+
+function keyPressed() {
+    if (keyIsDown(83)) {
+        let bullet = {
+            x: player.position.x + s,
+            y: player.position.y - 10,
+            s: s
+        }
+        bullets.push(bullet)
+    }
+}
+
+function mouseClicked() {
+    if (isGameOver) {
+        isGameOver = false
+
+        player.position.x = 100
+        player.position.y = height - 75
+        
+        score = 0       
+        
+        lifeCounter = 10
+        for(let i = 0; i < 10; i++) {
+            heart[i].addImage(life)
+        }
+    }
+}
+
 
 
 function endGame() {
     isGameOver = true
 }
 
-function mouseClicked() {
-    if (isGameOver) {
-        for (var n = 0; n < numGroundSprites; n++) {
-            var groundSprite = groundSprites[n]
-            groundSprite.position.x = n * 50
-        }
-
-        player.position.x = 100
-        // player.position.y = height - 75
-        
-        // platformSprites.removeSprites()
-        score = 0       
-        isGameOver = false
-
-
-    }
-}
 
 
 class Platform {
@@ -230,10 +298,10 @@ class Platform {
 
 class Zombie {
 
-    constructor(x, y, p, s, a) {
+    constructor(x, y, l, s, a) {
         this.x = x;
         this.y = y;
-        this.p = p;
+        this.l = l;
         this.s = s;
         this.a = a;
         this.a.position.x = this.x
@@ -243,12 +311,20 @@ class Zombie {
         zombie1R.resize(0, 80)
     }
 
+
     checkContact() {
 
         if ((player.position.x >= this.a.position.x - 50) && (player.position.x <= this.a.position.x + 50)) {
             
             if ((player.position.y + 55 >= this.a.position.y - 30) && (player.position.y - 45 <= this.a.position.y + 30)) {
-                text('XXX', player.position.x, player.position.y - 200)
+                if (player.position.x > this.a.position.x) {
+                    player.velocity.x = 10
+                }else if (player.position.x < this.a.position.x + 50) {
+                    player.velocity.x = -10
+                }
+                player.velocity.y = player.velocity.y - 5
+
+                lifeCounter--
             }
         }
     }
@@ -264,4 +340,106 @@ class Zombie {
         }
     }
 
+    takeDamage() {
+        for (let i = 0; i < bullets.length; i++) {
+            if ((bullets[i].y >= this.a.position.y - 30) && (bullets[i].y <= this.a.position.y + 30)) {
+                if ((bullets[i].x >= this.a.position.x - 30) && (bullets[i].x <= this.a.position.x + 30)) {
+                    bullets.pop(bullets[i])
+                    this.l -= 1
+                    this.isDead()
+                }
+            }
+        }
+    }
+
+    isDead() {
+        if (this.l === 0) {
+            this.a.remove()
+            zombies.pop(this)
+            score += 1
+        }
+    }
+
 }
+
+
+class Key {
+
+    constructor(x, y, p) {
+        this.x = x;
+        this.y = y;
+        this.p = p;
+    }
+    
+    drawKey() {
+        if(!this.p) {
+            image(key, this.x, this.y)
+            key.resize(0, 70)
+
+            // noStroke();
+            // noFill()
+            // rect(this.x + 10, this.y + 10, 50)
+        }
+    }
+
+
+    checkContact() {
+
+        if ((player.position.x >= this.x) && (player.position.x <= this.x + 50)) {
+            if ((player.position.y + 55 >= this.y + 50) && (player.position.y - 45 <= this.y)) {
+                this.pick()
+                // delete keys[keys.indexOf(this)]
+            }
+        }
+    }
+
+    pick() {
+        this.p = true
+    }
+
+}
+
+class Gate {
+
+    constructor(x, y, u) {
+        this.x = x;
+        this.y = y;
+        this.u = u;
+    }
+
+    drawGate() {
+        if(!this.u) {
+            image(gate, this.x, this.y - 200)
+            gate.resize(0, 300)
+
+            // rect(this.x + 90, this.y - 160, 140, 250)
+        }else{
+            openGate.resize(0, 300)
+            image(openGate, this.x, this.y - 200)
+        }
+        // noStroke();
+        // noFill()
+    }
+
+    checkContact() {
+        if ((player.position.x >= this.x + 50) && (player.position.x <= this.x + 55)) {
+            if (!this.hasKey()) {
+                player.position.x = this.x + 45
+            }
+        }
+    }
+
+    hasKey() {
+        if (keys[gates.indexOf(this)].p) {
+            this.unlock();
+            return this.u
+        }
+    }
+
+    unlock() {
+        this.u = true
+    }
+
+}
+
+
