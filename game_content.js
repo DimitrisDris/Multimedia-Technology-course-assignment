@@ -99,6 +99,12 @@ class Zombie {
 
     isDead() {
         if (this.l === 0) {
+
+            if (Math.random() >= 0) {
+                drops[dropCounter] = createSprite(this.a.position.x, this.a.position.y)
+                drops[dropCounter++].addImage(life)
+            }
+
             this.a.remove()
             zombies.pop(this)
             score += 1
@@ -106,7 +112,6 @@ class Zombie {
     }
 
 }
-
 
 class Key {
 
@@ -183,6 +188,42 @@ class Gate {
 
     unlock() {
         this.u = true
+    }
+
+}
+
+
+class Portal {
+
+    constructor(x1, y1, x2, y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+    }
+
+    drawPortal() {
+        fill(0, 0, 200)
+        rect(this.x1, this.y1 - 160, 140, 250)
+        rect(this.x2, this.y2 - 160, 140, 250)
+    }
+
+    checkContact() {
+
+        if ((player.position.x < this.x1 + 100) && (player.position.x > this.x1)) {
+            if ((player.position.y < this.y1 + 250) && (player.position.y > this.y1 - 250)) {
+                return [true, this.x2 + 50]
+            }else{
+                return [false]
+            }
+            
+        }else if ((player.position.x < this.x2 + 100) && (player.position.x > this.x2)) {
+            if ((player.position.y < this.y2 + 250) && (player.position.y > this.y2 - 250)) {
+                return [true, this.x1 + 50]
+            }else{
+                return [false]
+            }
+        }
     }
 
 }

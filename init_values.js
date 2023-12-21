@@ -15,11 +15,20 @@ var lifeCounter
 var keys = new Array()
 var gates = new Array()
 
+var portals = new Array()
+var onPortal
 let bullets = []
 let s = 40
 
 let playerSkin
 let playerSkinR
+
+var ROUNDS 
+
+
+var drops = new Array()
+var dropCounter = 0
+
 // Animations
 let playerIdle
 let playerRun
@@ -27,8 +36,10 @@ let playerJump
 let playerShoot
 
 let ground
+
 let zombie1
 let zombie1R
+
 let life
 let nolife
 let gate
@@ -44,8 +55,8 @@ var grizzly
 var openSettingsButton = false 
 
 function preload() {
-    playerSkin = loadImage('assets/p-skin.png')
-    playerSkinR = loadImage('assets/p-skinR.png')
+    // playerSkin = loadImage('assets/p-skin.png')
+    // playerSkinR = loadImage('assets/p-skinR.png')
 
     playerIdle = loadAnimation('assets/adventure_girl/Idle (1).png',
      'assets/adventure_girl/Idle (2).png',
@@ -56,7 +67,8 @@ function preload() {
      'assets/adventure_girl/Idle (7).png',
      'assets/adventure_girl/Idle (8).png',
      'assets/adventure_girl/Idle (9).png',
-     'assets/adventure_girl/Idle (10).png')
+     'assets/adventure_girl/Idle (10).png'
+    )
 
     playerRun = loadAnimation('assets/adventure_girl/Run (1).png',
      'assets/adventure_girl/Run (2).png',
@@ -65,7 +77,8 @@ function preload() {
      'assets/adventure_girl/Run (5).png',
      'assets/adventure_girl/Run (6).png',
      'assets/adventure_girl/Run (7).png',
-     'assets/adventure_girl/Run (8).png')
+     'assets/adventure_girl/Run (8).png'
+    )
 
     playerJump = loadAnimation('assets/adventure_girl/Jump (1).png',
      'assets/adventure_girl/Jump (2).png',
@@ -76,11 +89,13 @@ function preload() {
      'assets/adventure_girl/Jump (7).png',
      'assets/adventure_girl/Jump (8).png',
      'assets/adventure_girl/Jump (9).png',
-     'assets/adventure_girl/Jump (10).png')
+     'assets/adventure_girl/Jump (10).png'
+    )
 
     playerShoot = loadAnimation('assets/adventure_girl/Shoot (1).png',
      'assets/adventure_girl/Shoot (2).png',
-     'assets/adventure_girl/Shoot (3).png')
+     'assets/adventure_girl/Shoot (3).png'
+    )
 
     ground = loadImage('assets/Tile (2).png')
     zombie1 = loadImage('assets/zombie1.png')
@@ -99,15 +114,19 @@ function preload() {
     
 
     // Sounds 
-    mus = loadSound('sound/mehican_psy_trance_background.mp3')
-    grizzly = loadSound('sound/grizzly_scream.mp3')
+
+    // mus = loadSound('sound/mehican_psy_trance_background.mp3')
+    // grizzly = loadSound('sound/grizzly_scream.mp3')
 }
 
 function startGame() {
+
+
+
     groundSprites = new Group()
 
     settingsButton = createImg('assets/settings.avif')
-    settingsButton.position(1350, 30)
+    settingsButton.position(width, 30)
     settingsButton.size(30, 30)
     settingsButton.mousePressed(buttonPressed)
 
@@ -128,6 +147,7 @@ function startGame() {
     player.addAnimation('Jump', playerJump)
     player.addAnimation('Shoot', playerShoot)
     player.scale = 0.25
+    
     /*player.addImage(playerSkin)
     playerSkin.resize(0, 110)
     playerSkinR.resize(0, 110)*/
@@ -139,6 +159,10 @@ function startGame() {
 
     for(let i = 0; i < 1;  i++) {
         zombies[i] = new Zombie(300, 515, 5, 2, createSprite())
+    }
+
+    for(let i = 0; i < 1;  i++) {
+        portals[i] = new Portal(300, 500, 500, 500)
     }
 
     for(let i = 0; i < 10; i++) {
