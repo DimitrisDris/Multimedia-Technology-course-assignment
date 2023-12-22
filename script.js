@@ -1,7 +1,5 @@
 
 function setup() {
-    isGameOver = false
-    score = 0
 
     background(255, 255, 255)
     createCanvas(1300, 600)
@@ -72,19 +70,41 @@ function draw() {
             }
         }
 
+        push()
         zombies.forEach((z) => z.checkContact());
         zombies.forEach((z) => z.move());
-
         zombies.forEach((z) => z.takeDamage());
 
+        /*for (let i=0; i<zombies.length; i++) {
+            if (zombies[i].l === 0) {
+                /*if (Math.random() >= 0) {
+                    drops[dropCounter] = createSprite(this.a.position.x, this.a.position.y)
+                    drops[dropCounter++].addImage(life)
+                }
+                zombies[i].a.remove()
+                zombies.splice(i, 1)
+                console.log(zombies)
+
+                score++
+            }
+        }*/
+        
+        pop()
+
+        push()
         keys.forEach((k) => k.drawKey());
         keys.forEach((k) => k.checkContact());
+        pop()
 
+        push()
         gates.forEach((g) => g.drawGate());
         gates.forEach((g) => g.checkContact());
+        pop()
 
+        push()
         portals.forEach((p) => p.drawPortal());
         portals.forEach((p) => onPortal = p.checkContact());
+        pop()
 
         for (let i = 0; i < 10; i++) {
             heart[i].position.x = camera.position.x - 550 + i*32
@@ -116,13 +136,15 @@ function draw() {
             if (player.position.x + 5 > d.position.x && player.position.x - 5 < d.position.x) {
                 if (lifeCounter < 10) {
                     lifeCounter++
-                    drops.pop(d)
                     d.remove()
+                    drops.splice(drops.indexOf(d), 1)
+                    dropCounter--
                 }
             }
         }
-
         
+        // PLAYER ANIMATION HANDLING 
+
         if (player.velocity.x == 0 && player.velocity.y == 0) {
             player.changeAnimation('Idle')
         }
@@ -138,6 +160,8 @@ function draw() {
         if (keyIsDown(68)) {
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
+            player_dir = 1
+            player.mirrorX(1)
             player.changeAnimation('Run')
             // player.addImage(playerSkin)
 
@@ -146,8 +170,15 @@ function draw() {
         if (keyIsDown(65)) {
             player.position.x = player.position.x - 5
             camera.position.x = player.position.x - 5
+            player.mirrorX(-1)
+            player.changeAnimation('Run')
+
             // player.addImage(playerSkinR)
             s = -40
+        }
+
+        if (player.velocity.x != 0) {
+
         }
 
         if (keyIsDown(32)) {

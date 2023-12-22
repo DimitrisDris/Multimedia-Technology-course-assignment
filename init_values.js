@@ -4,7 +4,9 @@ var JUMP = -12
 var isGameOver
 var score
 
-var player
+var current_round 
+var TOTAL_ROUNDS = 2
+
 var platforms = new Array()
 var zombies = new Array()
 var onTop
@@ -29,7 +31,9 @@ var ROUNDS
 var drops = new Array()
 var dropCounter = 0
 
-// Animations
+// PLAYER STUFF
+var player
+var player_dir
 let playerIdle
 let playerRun
 let playerJump
@@ -98,7 +102,7 @@ function preload() {
     )
 
     ground = loadImage('assets/Tile (2).png')
-    zombie1 = loadImage('assets/zombie1.png')
+    //zombie1 = loadImage('assets/zombie1.png')
     zombie1R = loadImage('assets/zombie1R.png')
     backgroundImg = loadImage('assets/BG.png')
 
@@ -121,7 +125,9 @@ function preload() {
 
 function startGame() {
 
-
+    isGameOver = false
+    score = 0
+    player_dir = 1
 
     groundSprites = new Group()
 
@@ -141,7 +147,9 @@ function startGame() {
         groundSprites.add(groundSprite)
     } 
 
-    player = createSprite(100, 500)
+    //player = new Player(100, 500, 0.25, 1, createSprite())
+
+    player = createSprite(100, 515)
     player.addAnimation('Idle', playerIdle)
     player.addAnimation('Run', playerRun)
     player.addAnimation('Jump', playerJump)
@@ -157,8 +165,10 @@ function startGame() {
         platforms[i] = new Platform(-300*i, 100*i, 200, 20)
     }
 
-    for(let i = 0; i < 1;  i++) {
-        zombies[i] = new Zombie(300, 515, 5, 2, createSprite())
+    for(let i = 0; i < 8;  i++) {
+        let rand_x = Math.random() * ( (player.position.x + 800) - (player.position.x - 700) ) + (player.position.x - 150)
+        //ssslet rand_y = Math.random() * ( 515 - (player.position.y - 00) ) + (player.position.y - 200)
+        zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
     }
 
     for(let i = 0; i < 1;  i++) {

@@ -41,19 +41,29 @@ class Platform {
 
 }
 
-class Zombie {
+class Character {
 
-    constructor(x, y, l, s, a) {
+    constructor(x, y, scale, a) {
         this.x = x;
         this.y = y;
-        this.l = l;
-        this.s = s;
         this.a = a;
         this.a.position.x = this.x
         this.a.position.y = this.y
-        this.a.addImage(zombie1)
-        zombie1.resize(0, 80)
-        zombie1R.resize(0, 80)
+        this.a.scale = scale
+               
+    }
+
+}
+
+class Zombie extends Character {
+
+    constructor(x, y, scale, lives, speed, image, a) {             // Dry thelw e3igisi gia to resize 
+        super(x, y, scale, a)
+        this.l = lives;
+        this.s = speed;
+        this.a.addImage(image)
+       
+        //image.resize(0. 80)
     }
 
 
@@ -78,10 +88,12 @@ class Zombie {
 
         if (this.a.position.x > this.x + 200) {
             this.a.velocity.x = -this.s
-            this.a.addImage(zombie1R)
+            this.a.mirrorX(1)
+            //this.a.addImage(zombie1R)
         }else if (this.a.position.x <= this.x){
             this.a.velocity.x = this.s
-            this.a.addImage(zombie1)
+            this.a.mirrorX(-1)
+            //this.a.addImage(zombie1)
         }
     }
 
@@ -99,16 +111,50 @@ class Zombie {
 
     isDead() {
         if (this.l === 0) {
+            let zomb_pos_x = this.a.position.x
+            let zomb_pos_y = this.a.position.y
 
             if (Math.random() >= 0) {
-                drops[dropCounter] = createSprite(this.a.position.x, this.a.position.y)
-                drops[dropCounter++].addImage(life)
+                drops[dropCounter] = createSprite(zomb_pos_x, zomb_pos_y)
+                drops[dropCounter].addImage(life)
+                dropCounter++;
             }
 
+            let index = zombies.indexOf(this)
             this.a.remove()
-            zombies.pop(this)
+            zombies.splice(index, 1)
+            console.log(zombies)
             score += 1
         }
+    }
+
+}
+
+class Player extends Character {
+
+    constructor(x, y, scale, start_direction, a) {
+        super(x, y, scale, a)
+        this.dir = start_direction
+        player.addAnimation('Idle', playerIdle)
+        player.addAnimation('Run', playerRun)
+        player.addAnimation('Jump', playerJump)
+        player.addAnimation('Shoot', playerShoot)
+    }
+
+    idle() {
+        player.changeAnimation('Idle')
+    }
+
+    run() {
+        player.changeAnimation('Run')
+    }
+
+    jump() {
+        player.changeAnimation('Jump')
+    }
+
+    shoot() {
+        player.changeAnimation('Shoot')
     }
 
 }
