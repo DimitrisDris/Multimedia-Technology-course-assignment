@@ -29,6 +29,30 @@ function draw() {
            
         }
 
+        // Displaying the score 
+        image(zombieCounter, player.position.x - 40, 10)
+        textSize(40)
+        fill(200, 0, 0)
+        text(score, player.position.x + 60, 60)
+
+        // Displaying the current round
+        fill(255, 0, 0)
+        textSize(50)
+        textFont('Rubik Doodle Shadow')
+        text("Round "+currentRound, player.position.x - 90, 120)
+
+        // Displaying the current wave for few secs
+        if (newWaveStart) {
+            fill(255, 0, 0)
+            textSize(50)
+            textFont('Rubik Doodle Shadow')
+            text("Wave "+currentWave, player.position.x - 90, 230)  
+            
+            if (millis() - newWaveTime > 3500) {
+                newWaveStart = false
+            }
+        }
+
         player.velocity.y = player.velocity.y + GRAVITY
         camera.position.x = player.position.x
 
@@ -57,7 +81,7 @@ function draw() {
             player.position.y = height - 50 - player.height / 2
         }
 
-
+        // Platforms draw
         push()
         platforms.forEach((p) => p.drawPlatform());
         platforms.forEach((p) => p.checkContact());
@@ -70,26 +94,16 @@ function draw() {
             }
         }
 
+        // Zombies draw 
         push()
-        zombies.forEach((z) => z.checkContact());
-        zombies.forEach((z) => z.move());
-        zombies.forEach((z) => z.takeDamage());
-
-        /*for (let i=0; i<zombies.length; i++) {
-            if (zombies[i].l === 0) {
-                /*if (Math.random() >= 0) {
-                    drops[dropCounter] = createSprite(this.a.position.x, this.a.position.y)
-                    drops[dropCounter++].addImage(life)
-                }
-                zombies[i].a.remove()
-                zombies.splice(i, 1)
-                console.log(zombies)
-
-                score++
-            }
-        }*/
-        
+        if (zombies.length > 0) {
+            zombies.forEach((z) => z.checkContact());
+            zombies.forEach((z) => z.move());
+            zombies.forEach((z) => z.takeDamage());
+        }
         pop()
+
+        if (zombies.length === 0) startNewWave()
 
         push()
         keys.forEach((k) => k.drawKey());
@@ -106,24 +120,29 @@ function draw() {
         portals.forEach((p) => onPortal = p.checkContact());
         pop()
 
+        push()
         for (let i = 0; i < 10; i++) {
             heart[i].position.x = camera.position.x - 550 + i*32
             heart[i].position.y = camera.position.y - 250
-        }
+        }  
+        pop()      
 
+        push()
         for(let i = 0; i < lifeCounter; i++) {
             heart[i].addImage(life)
         }
+        pop()
+        
+        push()
         for (let i = lifeCounter; i < 10; i++) {
-            heart[i].addImage(nolife)
+            heart[i].addImage(nolife);
+            
         }
+        pop()
+    
+        
 
-        image(zombieCounter, player.position.x - 40, 10)
-        textSize(28)
-        fill(200, 0, 0)
-        text(score, player.position.x + 60, 60)
-
-
+        push()
         for (b of bullets) {
             b.x += b.s / 4
             circle(b.x, b.y, 10)
@@ -131,7 +150,9 @@ function draw() {
                 bullets.pop(b)
             }
         }
+        pop()
 
+        push()
         for (d of drops) {
             if (player.position.x + 5 > d.position.x && player.position.x - 5 < d.position.x) {
                 if (lifeCounter < 10) {
@@ -142,6 +163,7 @@ function draw() {
                 }
             }
         }
+        pop()
         
         // PLAYER ANIMATION HANDLING 
 
@@ -150,6 +172,7 @@ function draw() {
         }
 
         if (keyIsDown(83)) {
+            playerFireSound.play()
             player.changeAnimation('Shoot')
         }
 
@@ -158,6 +181,7 @@ function draw() {
             player.changeAnimation('Jump')
         }
         if (keyIsDown(68)) {
+            push()
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
             player_dir = 1
@@ -166,8 +190,10 @@ function draw() {
             // player.addImage(playerSkin)
 
             s = 40
+            pop()
         }
         if (keyIsDown(65)) {
+            push()
             player.position.x = player.position.x - 5
             camera.position.x = player.position.x - 5
             player.mirrorX(-1)
@@ -175,11 +201,12 @@ function draw() {
 
             // player.addImage(playerSkinR)
             s = -40
+            pop()
         }
 
-        if (player.velocity.x != 0) {
+        /*if (player.velocity.x != 0) {
 
-        }
+        }*/
 
         if (keyIsDown(32)) {
             text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
@@ -191,8 +218,12 @@ function draw() {
         }
 
         if (lifeCounter === 0) {
+            //removeSprites(heart)
+            player.changeAnimation('Dead')
+            
+            if (player.getAnimationLabel() === 'Dead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
             //grizzly.play()
-            endGame()
+            
         }
 
         drawSprites()
@@ -249,6 +280,8 @@ function mouseClicked() {
 
 
 function endGame() {
+    //grizzly.play()
+    console.log(heart)
     isGameOver = true
 }
 

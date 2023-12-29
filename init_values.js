@@ -2,10 +2,17 @@ var groundSprites
 var GRAVITY = 0.5
 var JUMP = -12
 var isGameOver
+var beforeEndGame 
 var score
+var timer
 
-var current_round 
-var TOTAL_ROUNDS = 2
+var currentRound 
+var TOTAL_ROUNDS
+var currentWave
+var WAVES
+var newWaveStart
+var newWaveTime
+
 
 var platforms = new Array()
 var zombies = new Array()
@@ -25,8 +32,6 @@ let s = 40
 let playerSkin
 let playerSkinR
 
-var ROUNDS 
-
 
 var drops = new Array()
 var dropCounter = 0
@@ -38,6 +43,8 @@ let playerIdle
 let playerRun
 let playerJump
 let playerShoot
+let playerDead
+let playerFireSound
 
 let ground
 
@@ -101,6 +108,20 @@ function preload() {
      'assets/adventure_girl/Shoot (3).png'
     )
 
+    playerDead = loadAnimation('assets/adventure_girl/Dead (1).png',
+        'assets/adventure_girl/Dead (2).png',
+        'assets/adventure_girl/Dead (3).png',
+        'assets/adventure_girl/Dead (4).png',
+        'assets/adventure_girl/Dead (5).png',
+        'assets/adventure_girl/Dead (6).png',
+        'assets/adventure_girl/Dead (7).png',
+        'assets/adventure_girl/Dead (8).png',
+        'assets/adventure_girl/Dead (9).png',
+        'assets/adventure_girl/Dead (10).png',
+
+
+    )
+
     ground = loadImage('assets/Tile (2).png')
     //zombie1 = loadImage('assets/zombie1.png')
     zombie1R = loadImage('assets/zombie1R.png')
@@ -120,14 +141,20 @@ function preload() {
     // Sounds 
 
     // mus = loadSound('sound/mehican_psy_trance_background.mp3')
-    // grizzly = loadSound('sound/grizzly_scream.mp3')
+    grizzly = loadSound('sound/grizzly_scream.mp3')
+    playerFireSound = loadSound('sound/520279__hisoul__kali-fire-scream_1.wav')
 }
 
 function startGame() {
 
     isGameOver = false
+    newWaveStart = true
+    TOTAL_ROUNDS = 2
     score = 0
-    player_dir = 1
+    player_dir = 1      // Player direction for mirroring
+    currentRound = 1
+    currentWave = 1
+    newWaveTime = millis()
 
     groundSprites = new Group()
 
@@ -147,29 +174,27 @@ function startGame() {
         groundSprites.add(groundSprite)
     } 
 
-    //player = new Player(100, 500, 0.25, 1, createSprite())
-
+    // Player sprite and animations 
     player = createSprite(100, 515)
     player.addAnimation('Idle', playerIdle)
     player.addAnimation('Run', playerRun)
     player.addAnimation('Jump', playerJump)
     player.addAnimation('Shoot', playerShoot)
+    player.addAnimation('Dead', playerDead)
     player.scale = 0.25
-    
-    /*player.addImage(playerSkin)
-    playerSkin.resize(0, 110)
-    playerSkinR.resize(0, 110)*/
 
 
     for(let i = 0; i < 10;  i++) {
         platforms[i] = new Platform(-300*i, 100*i, 200, 20)
     }
 
-    for(let i = 0; i < 8;  i++) {
+    // Zombies 
+    spawnZombies(2)
+    /*for(let i = 0; i < 3;  i++) {
         let rand_x = Math.random() * ( (player.position.x + 800) - (player.position.x - 700) ) + (player.position.x - 150)
         //ssslet rand_y = Math.random() * ( 515 - (player.position.y - 00) ) + (player.position.y - 200)
         zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
-    }
+    }*/
 
     for(let i = 0; i < 1;  i++) {
         portals[i] = new Portal(300, 500, 500, 500)
@@ -222,4 +247,31 @@ function hideSliders() {
     if (musSlider) {
         musSlider.hide();
     }
+}
+
+function startNewWave() {
+    newWaveStart = true
+    if (currentWave === 3) {
+        currentWave = 1;
+        currentRound++;
+        return;
+    } else {
+        currentWave++;
+        spawnZombies(2*currentWave)
+    }
+}
+
+function spawnZombies(numZombies) {
+    newWaveTime = millis()
+
+    let spawnArea = 500
+    let spawnX = player.position.x + random(-spawnArea / 2, spawnArea / 2)
+    let spawnY = player.position.y + random(-spawnArea / 2, spawnArea / 2)
+    
+    for(let i = 0; i < numZombies;  i++) {
+        let rand_x = Math.random() * ( (player.position.x + 500) - (player.position.x - 700) ) + (player.position.x - 500)
+        //ssslet rand_y = Math.random() * ( 515 - (player.position.y - 00) ) + (player.position.y - 200)
+        zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
+    }
+
 }

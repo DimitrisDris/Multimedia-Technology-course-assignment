@@ -79,7 +79,7 @@ class Zombie extends Character {
                 }
                 player.velocity.y = player.velocity.y - 5
 
-                lifeCounter--
+                if (lifeCounter > 0) lifeCounter--
             }
         }
     }
@@ -123,7 +123,7 @@ class Zombie extends Character {
             let index = zombies.indexOf(this)
             this.a.remove()
             zombies.splice(index, 1)
-            console.log(zombies)
+            //console.log(zombies.length)
             score += 1
         }
     }
