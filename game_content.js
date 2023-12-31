@@ -5,7 +5,7 @@ class Platform {
         this.y = y;
         this.w = w;
         this.h = h;
-        this.drawPlatform();
+        //this.drawPlatform();
     }
 
     drawPlatform() {
@@ -224,6 +224,8 @@ class Gate {
             if (!this.hasKey()) {
                 player.position.x = this.x + 45
             }
+
+            if (this.u) { return }
         }
     }
 
@@ -235,7 +237,16 @@ class Gate {
     }
 
     unlock() {
+        openGateBool = true
         this.u = true
+    }
+
+    resetSound() {
+        openGateBool = false
+    }
+
+    returnXPos() {
+        return this.x
     }
 
 }

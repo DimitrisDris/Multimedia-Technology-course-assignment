@@ -1,10 +1,12 @@
 var groundSprites
 var GRAVITY = 0.5
-var JUMP = -12
+var JUMP = -14
 var isGameOver
 var beforeEndGame 
 var score
 var timer
+var minPlayAreaX
+var maxPlayAreaX
 
 var currentRound 
 var TOTAL_ROUNDS
@@ -12,6 +14,7 @@ var currentWave
 var WAVES
 var newWaveStart
 var newWaveTime
+var GAME_STATE
 
 
 var platforms = new Array()
@@ -67,10 +70,18 @@ var musSlider
 var mus 
 var grizzly
 var keySound
+
 var pistolShotSound
-var pistolShotSound // boolean for the sound file
+var pistolShotBool // boolean for the sound file
+
 var playerRunSound
 var playerRunBool // boolean for the player run sound
+
+var playerJumpSound
+var playerJumpBool  // boolean for the player jump sound
+
+var openGateSound
+var openGateBool // boolean for the open gate sound
 
 var openSettingsButton = false 
 
@@ -163,11 +174,14 @@ function preload() {
     keySound = loadSound('sound/512137__beezlefm__key-sound.wav')
     pistolShotSound = loadSound('sound/266916__coolguy244e__gun-shotbullet-hit.mp3')
     playerRunSound = loadSound('sound/422994__dkiller2204__sfxrunground3.wav')
+    playerJumpSound = loadSound('sound/527524__jerimee__retro-super-jump.wav')
+    openGateSound = loadSound('sound/683434__saha213131__door-open.mp3')
     //playerFireSound = loadSound('sound/520279__hisoul__kali-fire-scream_1.wav')
 }
 
 function startGame() {
 
+    GAME_STATE = 'PLAYING'
     isGameOver = false
     newWaveStart = true
     //pistolShot = false
@@ -177,6 +191,9 @@ function startGame() {
     currentRound = 1
     currentWave = 1
     newWaveTime = millis()
+
+    minPlayAreaX = -500
+    maxPlayAreaX = 3500
 
     groundSprites = new Group()
 
@@ -196,7 +213,22 @@ function startGame() {
         groundSprites.add(groundSprite)
     } 
 
-    // Player sprite and animations 
+    
+
+
+    
+
+    for(let i = 0; i < 1;  i++) {
+        portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
+
+    for(let i = 0; i < 1;  i++) {
+        gates[i] = new Gate(1100, 450, false)
+    }
+
+    
+    
+
+        // Player sprite and animations 
     player = createSprite(100, 515)
     player.addAnimation('Idle', playerIdle)
     player.addAnimation('Run', playerRun)
@@ -206,10 +238,10 @@ function startGame() {
     player.addAnimation('Lara', laraRun)
     player.scale = 0.25
 
-
-    for(let i = 0; i < 10;  i++) {
-        platforms[i] = new Platform(-300*i, 100*i, 200, 20)
+    for(let i = 1; i <= 2* currentRound;  i++) {
+        platforms[i-1] = new Platform(1100-500*i/1.25, player.position.y-130*i, 200, 20)
     }
+    
 
     // Zombies 
     spawnZombies(2)
@@ -219,8 +251,7 @@ function startGame() {
         zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
     }*/
 
-    for(let i = 0; i < 1;  i++) {
-        portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
+    
 
     for(let i = 0; i < 10; i++) {
         heart[i] = createSprite()
@@ -230,18 +261,20 @@ function startGame() {
     nolife.resize(0, 30)
     lifeCounter = 10
 
+    
+
     zombieCounter.resize(0, 70)
 
     for(let i = 0; i < 1;  i++) {
         keys[i] = new Key(1000, 450, false)
     }
-    for(let i = 0; i < 1;  i++) {
-        gates[i] = new Gate(1300, 450, false)
-    }
+    
+    
 
 }
 
 function buttonPressed() {
+    GAME_STATE = 'SETTINGS'
     openSettingsButton = !openSettingsButton
 
     noLoop()
@@ -254,7 +287,7 @@ function createSliders() {
     musSlider.input( () => {
         mus.setVolume(musSlider.value())
     })
-
+    musSlider.size(200)
     musSlider.hide();
 }
 

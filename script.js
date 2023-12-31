@@ -10,24 +10,31 @@ function setup() {
 }
 
 function draw() {
-    if (isGameOver) {
+    
+    if (GAME_STATE === 'END') {
         background(0)
         fill(255)
         textAlign(CENTER)
         textSize(18)
         text('You killed ' + score + ' zombies : ', camera.position.x, camera.position.y - 20)
         text('Game Over! Click anywhere to restart (or better just refresh the page)', camera.position.x, camera.position.y)
-    }else{
+    } else if (GAME_STATE === 'SETTINGS') {
+        background(0)
+        settingsButton.hide()
+        
+        showSliders()
+    } else if (GAME_STATE === 'PLAYING') {
         background(backgroundImg)
 
          /* When pressing the settings button */
-         if (openSettingsButton) {
+         /*if (openSettingsButton) {
+            
             settingsButton.hide()
             fill(200, 100)
             rect(width/4, height/7, width / 3.75, height / 1.75)
             showSliders()
            
-        }
+        }*/
 
         // Displaying the score 
         image(zombieCounter, player.position.x - 40, 10)
@@ -52,6 +59,8 @@ function draw() {
                 newWaveStart = false
             }
         }
+
+        player.position.x = constrain(player.position.x, -500, 3500)            // To control the play area of the game
 
         player.velocity.y = player.velocity.y + GRAVITY
         camera.position.x = player.position.x
@@ -112,7 +121,11 @@ function draw() {
 
         push()
         gates.forEach((g) => g.drawGate());
-        gates.forEach((g) => g.checkContact());
+        //gates.forEach((g) => g.checkContact());
+        gates.forEach((g) => {
+            if (!g.u) g.checkContact()          // for the sound to be working properly
+            else {}
+        });
         pop()
 
         push()
@@ -164,6 +177,27 @@ function draw() {
             }
         }
         pop()
+
+        gates.forEach( (g) => {             // Open gate sound
+            if (g.u) {
+                //openGateBool = true
+                if (openGateBool) {
+                    openGateSound.setVolume(0.1)
+                    openGateSound.rate(1.0)
+                    openGateSound.play()
+                    g.resetSound()
+                }
+                
+                
+            }
+        })
+
+        /*if (openGateBool) {
+            openGateSound.setVolume(0.1)
+            openGateSound.rate(1.0)
+            openGateSound.play()
+            openGateBool = false
+        }*/
         
         // PLAYER ANIMATION HANDLING 
 
@@ -172,17 +206,23 @@ function draw() {
         }
 
         if (keyIsDown(83)) {
-            if (pistolShot) {
+            if (pistolShotBool) {
                 pistolShotSound.setVolume(0.1)
                 pistolShotSound.rate(1.0)
                 pistolShotSound.play()
-                pistolShot = false
+                pistolShotBool = false
             }
             //playerFireSound.play()
             player.changeAnimation('Shoot')
         }
 
         if (keyIsDown(87) && (groundSprites.overlap(player) || onTop)) {
+            if (playerJumpBool) {
+                playerJumpSound.setVolume(0.1)
+                playerJumpSound.rate(1.0)
+                playerJumpSound.play()
+                playerJumpBool = false
+            }
             player.velocity.y = JUMP
             player.changeAnimation('Jump')
         }
@@ -252,7 +292,7 @@ function keyPressed() {
     }
 
     if (keyIsDown(83)) {
-        pistolShot = true
+        pistolShotBool = true
         let bullet = {
             x: player.position.x + s,
             y: player.position.y + 10, //change
@@ -261,21 +301,12 @@ function keyPressed() {
         bullets.push(bullet)
     }
 
-    /*if (keyIsDown(68)) {
-        //push()
-        player_dir = 1
-        playerRunBool = true
-        
-       // pop()
+    if (keyIsDown(87)) {
+        playerJumpBool = true
     }
 
-    if (keyIsDown(65)) {
-        player_dir = -1
-        playerRunBool = true
-        
-    }*/
-
-    if (openSettingsButton && keyCode === ESCAPE ) {
+    if (GAME_STATE === 'SETTINGS' && keyCode === ESCAPE ) {
+        GAME_STATE = 'PLAYING'
         openSettingsButton = false;
         settingsButton.show();
         hideSliders();
@@ -283,6 +314,15 @@ function keyPressed() {
         loop()
         
     }
+
+    /*if (openSettingsButton && keyCode === ESCAPE ) {
+        openSettingsButton = false;
+        settingsButton.show();
+        hideSliders();
+        // Unfreezes game
+        loop()
+        
+    }*/
 }
 
 function mouseClicked() {
@@ -306,6 +346,7 @@ function mouseClicked() {
 function endGame() {
     //grizzly.play()
     console.log(heart)
+    GAME_STATE = 'END'
     isGameOver = true
 }
 
