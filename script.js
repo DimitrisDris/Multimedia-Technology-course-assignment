@@ -116,7 +116,7 @@ function draw() {
         pop()
 
         push()
-        portals.forEach((p) => p.drawPortal());
+        //portals.forEach((p) => p.drawPortal());
         portals.forEach((p) => onPortal = p.checkContact());
         pop()
 
@@ -172,7 +172,13 @@ function draw() {
         }
 
         if (keyIsDown(83)) {
-            playerFireSound.play()
+            if (pistolShot) {
+                pistolShotSound.setVolume(0.1)
+                pistolShotSound.rate(1.0)
+                pistolShotSound.play()
+                pistolShot = false
+            }
+            //playerFireSound.play()
             player.changeAnimation('Shoot')
         }
 
@@ -181,28 +187,29 @@ function draw() {
             player.changeAnimation('Jump')
         }
         if (keyIsDown(68)) {
-            push()
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
-            player_dir = 1
-            player.mirrorX(1)
-            player.changeAnimation('Run')
-            // player.addImage(playerSkin)
+            
 
             s = 40
-            pop()
+            player.mirrorX(1)
+            player.changeAnimation('Run')
+            
         }
         if (keyIsDown(65)) {
-            push()
             player.position.x = player.position.x - 5
             camera.position.x = player.position.x - 5
-            player.mirrorX(-1)
-            player.changeAnimation('Run')
-
-            // player.addImage(playerSkinR)
             s = -40
-            pop()
+            player.mirrorX(-1)
+            player.changeAnimation('Run')            
+            //pop()
         }
+
+        /*if (playerRunBool && (keyIsDown(65) || keyIsDown(68))) {                        // This is for the run sound
+            playerRunSound.setVolume(0.1)
+            playerRunSound.play()
+            playerRunBool = false
+        }*/
 
         /*if (player.velocity.x != 0) {
 
@@ -227,6 +234,8 @@ function draw() {
         }
 
         drawSprites()
+
+        
     }
 
 }
@@ -243,6 +252,7 @@ function keyPressed() {
     }
 
     if (keyIsDown(83)) {
+        pistolShot = true
         let bullet = {
             x: player.position.x + s,
             y: player.position.y + 10, //change
@@ -250,6 +260,20 @@ function keyPressed() {
         }
         bullets.push(bullet)
     }
+
+    /*if (keyIsDown(68)) {
+        //push()
+        player_dir = 1
+        playerRunBool = true
+        
+       // pop()
+    }
+
+    if (keyIsDown(65)) {
+        player_dir = -1
+        playerRunBool = true
+        
+    }*/
 
     if (openSettingsButton && keyCode === ESCAPE ) {
         openSettingsButton = false;

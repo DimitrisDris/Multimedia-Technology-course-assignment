@@ -190,7 +190,9 @@ class Key {
     }
 
     pick() {
+        if (!this.p) keySound.play()
         this.p = true
+        
     }
 
 }
@@ -241,7 +243,21 @@ class Gate {
 
 class Portal {
 
-    constructor(x1, y1, x2, y2) {
+    constructor(x, y, scale, image) {
+        this.x = x
+        this.y = y
+        this.firstPortalSprite = createSprite(x, y)
+        this.secondPortalSprite = createSprite(this.x+200, this.y)
+
+        this.firstPortalSprite.addImage(image)
+        this.firstPortalSprite.scale = scale
+
+        this.secondPortalSprite.addImage(image)
+        this.secondPortalSprite.scale = scale
+               
+    }
+
+    /*constructor(x1, y1, x2, y2) {
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
@@ -249,10 +265,8 @@ class Portal {
     }
 
     drawPortal() {
-        fill(0, 0, 200)
-        rect(this.x1, this.y1 - 160, 140, 250)
-        rect(this.x2, this.y2 - 160, 140, 250)
-    }
+        drawSprites()
+    }*/
 
     checkContact() {
 

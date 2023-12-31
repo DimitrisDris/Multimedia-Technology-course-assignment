@@ -24,6 +24,7 @@ var lifeCounter
 var keys = new Array()
 var gates = new Array()
 
+//var portalGroup = new Group()
 var portals = new Array()
 var onPortal
 let bullets = []
@@ -44,8 +45,10 @@ let playerRun
 let playerJump
 let playerShoot
 let playerDead
-let playerFireSound
+let laraRun
 
+let bulletImg
+let tombstoneImg
 let ground
 
 let zombie1
@@ -63,6 +66,12 @@ var volumeSlider
 var musSlider 
 var mus 
 var grizzly
+var keySound
+var pistolShotSound
+var pistolShotSound // boolean for the sound file
+var playerRunSound
+var playerRunBool // boolean for the player run sound
+
 var openSettingsButton = false 
 
 function preload() {
@@ -117,10 +126,18 @@ function preload() {
         'assets/adventure_girl/Dead (7).png',
         'assets/adventure_girl/Dead (8).png',
         'assets/adventure_girl/Dead (9).png',
-        'assets/adventure_girl/Dead (10).png',
-
-
+        'assets/adventure_girl/Dead (10).png'
     )
+
+    laraRun = loadAnimation('assets/lara_run/lara run/run1.png',
+    'assets/lara_run/lara run/run2.png',
+    'assets/lara_run/lara run/run3.png',
+    'assets/lara_run/lara run/run4.png',
+    'assets/lara_run/lara run/run5.png',
+    'assets/lara_run/lara run/run6.png',
+    'assets/lara_run/lara run/run7.png',
+    'assets/lara_run/lara run/run8.png'
+)
 
     ground = loadImage('assets/Tile (2).png')
     //zombie1 = loadImage('assets/zombie1.png')
@@ -135,20 +152,25 @@ function preload() {
     gate = loadImage('assets/gate.png')
     openGate = loadImage('assets/openGate.png')
     key = loadImage('assets/key.png')
-
+    bulletImg = loadImage('assets/Bullet.png')
+    tombstoneImg = loadImage('assets/TombStone (1).png')
     
 
     // Sounds 
 
     // mus = loadSound('sound/mehican_psy_trance_background.mp3')
     grizzly = loadSound('sound/grizzly_scream.mp3')
-    playerFireSound = loadSound('sound/520279__hisoul__kali-fire-scream_1.wav')
+    keySound = loadSound('sound/512137__beezlefm__key-sound.wav')
+    pistolShotSound = loadSound('sound/266916__coolguy244e__gun-shotbullet-hit.mp3')
+    playerRunSound = loadSound('sound/422994__dkiller2204__sfxrunground3.wav')
+    //playerFireSound = loadSound('sound/520279__hisoul__kali-fire-scream_1.wav')
 }
 
 function startGame() {
 
     isGameOver = false
     newWaveStart = true
+    //pistolShot = false
     TOTAL_ROUNDS = 2
     score = 0
     player_dir = 1      // Player direction for mirroring
@@ -181,6 +203,7 @@ function startGame() {
     player.addAnimation('Jump', playerJump)
     player.addAnimation('Shoot', playerShoot)
     player.addAnimation('Dead', playerDead)
+    player.addAnimation('Lara', laraRun)
     player.scale = 0.25
 
 
@@ -197,8 +220,7 @@ function startGame() {
     }*/
 
     for(let i = 0; i < 1;  i++) {
-        portals[i] = new Portal(300, 500, 500, 500)
-    }
+        portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
 
     for(let i = 0; i < 10; i++) {
         heart[i] = createSprite()
