@@ -21,20 +21,37 @@ function draw() {
     } else if (GAME_STATE === 'SETTINGS') {
         background(0)
         settingsButton.hide()
-        
-        showSliders()
-    } else if (GAME_STATE === 'PLAYING') {
-        background(backgroundImg)
 
-         /* When pressing the settings button */
-         /*if (openSettingsButton) {
+        /*fill(255, 0, 0)
+        textSize(50)
+        textFont('Rubik Doodle Shadow')
+        text("Music Volume", camera.position.x - 150, musSliderPosY - 60 )
+
+        fill(255, 0, 0)
+        textSize(50)
+        textFont('Rubik Doodle Shadow')
+        text("Audio Volume", camera.position.x - 150, audioSliderPosY - 60)*/
+
+        settingsDescription()
+        showSliders()
+    } /*else if (GAME_STATE === ' START') {
+        fill(255, 0, 0)
+        textSize(50)
+        textFont('Rubik Doodle Shadow')
+        text("Press SPACE to start!", camera.position.x - 190, musSliderPosY - 55 )
+        //drawSprites()
+    }*/
+     else if (GAME_STATE === 'PLAYING') {
+
+        /*if (!runGameBool) {
+            noloop()
             
-            settingsButton.hide()
-            fill(200, 100)
-            rect(width/4, height/7, width / 3.75, height / 1.75)
-            showSliders()
-           
+            fill(255, 0, 0)
+            textSize(50)
+            textFont('Rubik Doodle Shadow')
+            text("Press SPACE to start!", camera.position.x - 190, musSliderPosY - 55 )
         }*/
+        background(backgroundImg)
 
         // Displaying the score 
         image(zombieCounter, player.position.x - 40, 10)
@@ -182,7 +199,7 @@ function draw() {
             if (g.u) {
                 //openGateBool = true
                 if (openGateBool) {
-                    openGateSound.setVolume(0.1)
+                    //openGateSound.setVolume(0.1)
                     openGateSound.rate(1.0)
                     openGateSound.play()
                     g.resetSound()
@@ -207,7 +224,7 @@ function draw() {
 
         if (keyIsDown(83)) {
             if (pistolShotBool) {
-                pistolShotSound.setVolume(0.1)
+                //pistolShotSound.setVolume(0.1)
                 pistolShotSound.rate(1.0)
                 pistolShotSound.play()
                 pistolShotBool = false
@@ -218,7 +235,7 @@ function draw() {
 
         if (keyIsDown(87) && (groundSprites.overlap(player) || onTop)) {
             if (playerJumpBool) {
-                playerJumpSound.setVolume(0.1)
+                //playerJumpSound.setVolume(0.1)
                 playerJumpSound.rate(1.0)
                 playerJumpSound.play()
                 playerJumpBool = false
@@ -283,6 +300,11 @@ function draw() {
 
 
 function keyPressed() {
+
+    if (!runGameBool && keyIsDown(32)) {
+        runGameBool = true
+        loop()
+    }
     
     if (keyIsDown(81)) {
         text(onPortal[0],player.position.x,300)

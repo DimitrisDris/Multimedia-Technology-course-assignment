@@ -15,6 +15,7 @@ var WAVES
 var newWaveStart
 var newWaveTime
 var GAME_STATE
+var runGameBool
 
 
 var platforms = new Array()
@@ -65,8 +66,13 @@ let key
 var backgroundImg
 
 // Sounds
-var volumeSlider
+var audioSlider
+var audioSliderPosX
+var audioSliderPosY
+
 var musSlider 
+var musSliderPosX
+var musSliderPosY
 var mus 
 var grizzly
 var keySound
@@ -184,6 +190,7 @@ function startGame() {
     GAME_STATE = 'PLAYING'
     isGameOver = false
     newWaveStart = true
+    runGameBool = false
     //pistolShot = false
     TOTAL_ROUNDS = 2
     score = 0
@@ -211,12 +218,7 @@ function startGame() {
         ground.resize(50, 50)
 
         groundSprites.add(groundSprite)
-    } 
-
-    
-
-
-    
+    }     
 
     for(let i = 0; i < 1;  i++) {
         portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
@@ -273,6 +275,8 @@ function startGame() {
 
 }
 
+// ----------------------- SETTINGS FUNCTIONS -----------------------
+
 function buttonPressed() {
     GAME_STATE = 'SETTINGS'
     openSettingsButton = !openSettingsButton
@@ -281,28 +285,68 @@ function buttonPressed() {
 }
 
 function createSliders() {
+    musSliderPosX = (width / 2)
+    musSliderPosY = (height / 3.5) + 70
     musSlider = createSlider(0, 1, 0.5, 0.01);           // Arguments: min, max, default, step
-    musSlider.position( (width / 4) + 20, (height / 7) + 20 );
-
+    musSlider.position( musSliderPosX, musSliderPosY );
     musSlider.input( () => {
         mus.setVolume(musSlider.value())
     })
     musSlider.size(200)
-    musSlider.hide();
+    
+
+    audioSliderPosX = (width / 2)
+    audioSliderPosY = (height / 2) + 120
+    audioSlider = createSlider(0, 1, 0.5, 0.01)
+    audioSlider.position( audioSliderPosX, audioSliderPosY )
+    audioSlider.input( () => {
+        grizzly.setVolume(audioSlider.value())
+        keySound.setVolume(audioSlider.value())
+        pistolShotSound.setVolume(audioSlider.value())
+        playerJumpSound.setVolume(audioSlider.value())
+        openGateSound.setVolume(audioSlider.value())
+    })
+    audioSlider.size(200)
+
+    hideSliders()
+}
+
+function settingsDescription() {
+    fill(255, 0, 0)
+    textSize(55)
+    textFont('Rubik Doodle Shadow')
+    text("Settings", camera.position.x - 140, musSliderPosY - 150 )
+
+    fill(255, 0, 0)
+    textSize(50)
+    textFont('Rubik Doodle Shadow')
+    text("Music Volume", camera.position.x - 190, musSliderPosY - 55 )
+
+    fill(255, 0, 0)
+    textSize(50)
+    textFont('Rubik Doodle Shadow')
+    text("Audio Volume", camera.position.x - 180, audioSliderPosY - 55)
+
+    fill(120, 255, 200)
+    textSize(35)
+    textFont('Rubik Doodle Shadow')
+    text("Press ESC to resume!", camera.position.x - 200, audioSliderPosY + 110 )
 }
 
 function showSliders() {
-    if (musSlider) {
-        musSlider.show()
-    }
+    if (musSlider) musSlider.show()
+
+    if (audioSlider) audioSlider.show()
 }
 
 function hideSliders() {
     // Hide sliders if they exist
-    if (musSlider) {
-        musSlider.hide();
-    }
+    if (musSlider) musSlider.hide();
+
+    if (audioSlider) audioSlider.hide()
 }
+
+// ----------------------- END OF SETTINGS FUNCTIONS -----------------------
 
 function startNewWave() {
     newWaveStart = true
