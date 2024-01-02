@@ -43,6 +43,16 @@ function draw() {
     }*/
      else if (GAME_STATE === 'PLAYING') {
 
+        /*if (!settingsButton) {
+            settingsButton = new Button(player.position.x - 40, 30, settingsImg, 30, 30)
+        } else {
+        
+        }*/
+        //settingsButton = new SetButton(player.position.x - 40, 30, settingsImg, 30, 30)
+        //settingsButton.display()
+
+        
+        
         /*if (!runGameBool) {
             noloop()
             
@@ -52,6 +62,12 @@ function draw() {
             text("Press SPACE to start!", camera.position.x - 190, musSliderPosY - 55 )
         }*/
         background(backgroundImg)
+
+        //image(zombieCounter, player.position.x + 40, 30, 30, 30)
+        //settingsButton.position.x = player.position.x - 30
+        //settingsButton.position.y = 30
+        
+        
 
         // Displaying the score 
         image(zombieCounter, player.position.x - 40, 10)
@@ -64,6 +80,10 @@ function draw() {
         textSize(50)
         textFont('Rubik Doodle Shadow')
         text("Round "+currentRound, player.position.x - 90, 120)
+
+        settingsButton = new Button(player.position.x + 500, 25, settingsImg, 100, 100)
+        settingsButton.display()
+        settingsButton.checkHover()
 
         // Displaying the current wave for few secs
         if (newWaveStart) {
@@ -219,7 +239,8 @@ function draw() {
         // PLAYER ANIMATION HANDLING 
 
         if (player.velocity.x == 0 && player.velocity.y == 0) {
-            player.changeAnimation('Idle')
+            //player.changeAnimation('Idle')
+            player.changeAnimation('LaraStand')
         }
 
         if (keyIsDown(83)) {
@@ -230,7 +251,8 @@ function draw() {
                 pistolShotBool = false
             }
             //playerFireSound.play()
-            player.changeAnimation('Shoot')
+            //player.changeAnimation('Shoot')
+            player.changeAnimation('LaraAttack')
         }
 
         if (keyIsDown(87) && (groundSprites.overlap(player) || onTop)) {
@@ -241,7 +263,8 @@ function draw() {
                 playerJumpBool = false
             }
             player.velocity.y = JUMP
-            player.changeAnimation('Jump')
+            //player.changeAnimation('Jump')
+            player.changeAnimation('LaraJump')
         }
         if (keyIsDown(68)) {
             player.position.x = player.position.x + 5
@@ -250,7 +273,8 @@ function draw() {
 
             s = 40
             player.mirrorX(1)
-            player.changeAnimation('Run')
+            //player.changeAnimation('Run')
+            player.changeAnimation('LaraRun')
             
         }
         if (keyIsDown(65)) {
@@ -258,7 +282,8 @@ function draw() {
             camera.position.x = player.position.x - 5
             s = -40
             player.mirrorX(-1)
-            player.changeAnimation('Run')            
+            //player.changeAnimation('Run')        
+            player.changeAnimation('LaraRun')   
             //pop()
         }
 
@@ -361,6 +386,14 @@ function mouseClicked() {
             heart[i].addImage(life)
         }
     }
+
+    if (mouseX > settingsButton.x && mouseX < settingsButton.x + settingsButton.imageWidth &&
+        mouseY > settingsButton.y && mouseY < settingsButton.y + settingsButton.imageWidth) {
+            GAME_STATE = 'SETTINGS'
+            noloop()
+        }
+
+    
 }
 
 
@@ -371,8 +404,6 @@ function endGame() {
     GAME_STATE = 'END'
     isGameOver = true
 }
-
-
 
 
 

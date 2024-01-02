@@ -49,7 +49,11 @@ let playerRun
 let playerJump
 let playerShoot
 let playerDead
+
 let laraRun
+let laraStand
+let laraJump
+let laraAttack
 
 let bulletImg
 let tombstoneImg
@@ -90,6 +94,8 @@ var openGateSound
 var openGateBool // boolean for the open gate sound
 
 var openSettingsButton = false 
+var settingsButton
+var settingsImg
 
 function preload() {
     // playerSkin = loadImage('assets/p-skin.png')
@@ -147,14 +153,37 @@ function preload() {
     )
 
     laraRun = loadAnimation('assets/lara_run/lara run/run1.png',
-    'assets/lara_run/lara run/run2.png',
-    'assets/lara_run/lara run/run3.png',
-    'assets/lara_run/lara run/run4.png',
-    'assets/lara_run/lara run/run5.png',
-    'assets/lara_run/lara run/run6.png',
-    'assets/lara_run/lara run/run7.png',
-    'assets/lara_run/lara run/run8.png'
-)
+        'assets/lara_run/lara run/run2.png',
+        'assets/lara_run/lara run/run3.png',
+        'assets/lara_run/lara run/run4.png',
+        'assets/lara_run/lara run/run5.png',
+        'assets/lara_run/lara run/run6.png',
+        'assets/lara_run/lara run/run7.png',
+        'assets/lara_run/lara run/run8.png'
+    )
+
+    laraJump = loadAnimation('assets/laracrop/jump1.png',
+        'assets/laracrop/jump2.png',
+        'assets/laracrop/jump3.png',
+        'assets/laracrop/jump4.png',
+        'assets/laracrop/jump5.png',
+        'assets/laracrop/jump6.png',
+        'assets/laracrop/jump7.png'
+    )
+
+    laraStand = loadAnimation('assets/laracrop/stand1.png',
+        'assets/laracrop/stand2.png',
+        'assets/laracrop/stand3.png',
+        'assets/laracrop/stand4.png',
+        'assets/laracrop/stand5.png'
+    )
+
+    laraAttack = loadAnimation('assets/laracrop/attack1.png',
+        'assets/laracrop/attack2.png',
+        'assets/laracrop/attack3.png',
+        'assets/laracrop/attack4.png',
+        'assets/laracrop/attack5.png'
+    )
 
     ground = loadImage('assets/Tile (2).png')
     //zombie1 = loadImage('assets/zombie1.png')
@@ -171,6 +200,7 @@ function preload() {
     key = loadImage('assets/key.png')
     bulletImg = loadImage('assets/Bullet.png')
     tombstoneImg = loadImage('assets/TombStone (1).png')
+    settingsImg = loadImage('assets/settings.avif')
     
 
     // Sounds 
@@ -204,12 +234,7 @@ function startGame() {
 
     groundSprites = new Group()
 
-    settingsButton = createImg('assets/settings.avif')
-    settingsButton.position(width, 30)
-    settingsButton.size(30, 30)
-    settingsButton.mousePressed(buttonPressed)
-
-    createSliders()
+    
 
     for (var n = -10; n < (width / 50 + 1) - 8; n++) {
         var groundSprite = createSprite(n * 50, height - 25, 50, 50)
@@ -227,9 +252,6 @@ function startGame() {
         gates[i] = new Gate(1100, 450, false)
     }
 
-    
-    
-
         // Player sprite and animations 
     player = createSprite(100, 515)
     player.addAnimation('Idle', playerIdle)
@@ -237,8 +259,13 @@ function startGame() {
     player.addAnimation('Jump', playerJump)
     player.addAnimation('Shoot', playerShoot)
     player.addAnimation('Dead', playerDead)
-    player.addAnimation('Lara', laraRun)
-    player.scale = 0.25
+    player.addAnimation('LaraStand', laraStand)
+    player.addAnimation('LaraRun', laraRun)
+    player.addAnimation('LaraJump', laraJump)
+    player.addAnimation('LaraAttack', laraAttack)
+    player.scale = 1.5
+
+    createSliders()
 
     for(let i = 1; i <= 2* currentRound;  i++) {
         platforms[i-1] = new Platform(1100-500*i/1.25, player.position.y-130*i, 200, 20)
@@ -270,12 +297,25 @@ function startGame() {
     for(let i = 0; i < 1;  i++) {
         keys[i] = new Key(1000, 450, false)
     }
+
     
-    
+    //createSettingsButton()
 
 }
 
 // ----------------------- SETTINGS FUNCTIONS -----------------------
+
+function createSettingsButton() {
+    //let buttonX = constrain(1200, 1200, 1200)
+
+    let buttonX = constrain(camera.position.x+600, camera.position.x+600, camera.position.x+600)
+    let buttonY = constrain(camera.position.y+20, camera.position.y+20, camera.position.y+20)
+    //settingsButton = createButton('Settings')
+    settingsButton = createImg('assets/settings.avif')
+    settingsButton.position(buttonX, buttonY)
+    settingsButton.size(30, 30)
+    settingsButton.mousePressed(buttonPressed)
+}
 
 function buttonPressed() {
     GAME_STATE = 'SETTINGS'

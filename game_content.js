@@ -298,3 +298,42 @@ class Portal {
     }
 
 }
+
+class Button {
+
+    constructor(x, y, image, imageWidth, imageHeight) {
+        this.x = x
+        this.y = y
+        this.image = image
+        this.imageWidth = imageWidth
+        this.imageHeight = imageHeight
+    }
+
+    display() {
+        //stroke(0)
+        //fill(255)
+        //rect(this.x, this.y, this.imageWidth, this.imageHeight)
+        image(this.image, this.x, this.y, this.imageWidth, this.imageHeight)
+        this.checkHover()
+        console.log()
+    }
+
+    checkHover() {
+        console.log(mouseX)
+        //console.log(mouseY > 1555)
+        /*if (mouseX > 1555 && mouseX < 2000) {
+            return true
+        }*/
+        //console.log(mouseX > this.x && mouseX < this.x + this.imageWidth && mouseY > this.y && mouseY < this.y + this.imageHeight)
+        if (mouseX > this.x && mouseX < this.x + this.imageWidth && mouseY > this.y && mouseY < this.y + this.imageHeight) {
+            //if (mouseIsPressed) {
+                //GAME_STATE = 'SETTINGS'
+
+                //noloop()
+                return true
+            //}
+            
+        }
+    }
+
+}
