@@ -5,18 +5,36 @@ var isGameOver
 var beforeEndGame 
 var score
 var timer
+
+var killStreak
+var currentLives
+var superPowerActiveBool
+var superPowerMeter
+var superPowerMeterFullBool
+
 var minPlayAreaX
 var maxPlayAreaX
 
 var currentRound 
 var TOTAL_ROUNDS
+var finishedAllRounds
+var playForHighScore
+
 var currentWave
 var WAVES
 var newWaveStart
 var newWaveTime
-var GAME_STATE
-var runGameBool
+var currWaveFinished
+var waveText
 
+var GAME_STATE
+var passedAllWaves
+var currRoundStarted
+var startGameBool
+var startGameClock
+var chooseEnd
+var chooseEndClock
+var waveTimeout
 
 var platforms = new Array()
 var zombies = new Array()
@@ -58,6 +76,9 @@ let laraAttack
 let bulletImg
 let tombstoneImg
 let ground
+let arrowSignImg
+let skeletonImg
+let tree
 
 let zombie1
 let zombie1R
@@ -93,7 +114,6 @@ var playerJumpBool  // boolean for the player jump sound
 var openGateSound
 var openGateBool // boolean for the open gate sound
 
-var openSettingsButton = false 
 var settingsButton
 var settingsImg
 
@@ -186,6 +206,9 @@ function preload() {
     )
 
     ground = loadImage('assets/Tile (2).png')
+    tree = loadImage('assets/Tree.png')
+    skeletonImg = loadImage('assets/Skeleton.png')
+    arrowSignImg = loadImage('assets/ArrowSign.png')
     //zombie1 = loadImage('assets/zombie1.png')
     zombie1R = loadImage('assets/zombie1R.png')
     backgroundImg = loadImage('assets/BG.png')
@@ -219,14 +242,25 @@ function startGame() {
 
     GAME_STATE = 'PLAYING'
     isGameOver = false
-    newWaveStart = true
-    runGameBool = false
-    //pistolShot = false
-    TOTAL_ROUNDS = 2
+    startGameBool = false
+    startGameClock = millis()
+
+    // -------------------- Game logic booleans --------------------
+    passedAllWaves = false
+    newWaveStart = false
+    currRoundStarted = false
+    finishedAllRounds = false
+    // -------------------- --------------------  --------------------
+
+    TOTAL_ROUNDS = 5
     score = 0
     player_dir = 1      // Player direction for mirroring
     currentRound = 1
     currentWave = 1
+    killStreak = 0
+    lifeCounter = 10
+    currentLives = 10
+
     newWaveTime = millis()
 
     minPlayAreaX = -500
@@ -234,7 +268,6 @@ function startGame() {
 
     groundSprites = new Group()
 
-    
 
     for (var n = -10; n < (width / 50 + 1) - 8; n++) {
         var groundSprite = createSprite(n * 50, height - 25, 50, 50)
@@ -248,8 +281,8 @@ function startGame() {
     for(let i = 0; i < 1;  i++) {
         portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
 
-    for(let i = 0; i < 1;  i++) {
-        gates[i] = new Gate(1100, 450, false)
+    for(let i = 0; i < TOTAL_ROUNDS;  i++) {
+        gates[i] = new Gate(1200*(i+1), 450, false)
     }
 
         // Player sprite and animations 
@@ -263,24 +296,12 @@ function startGame() {
     player.addAnimation('LaraRun', laraRun)
     player.addAnimation('LaraJump', laraJump)
     player.addAnimation('LaraAttack', laraAttack)
-    player.scale = 1.5
+    player.scale = 0.25
 
+    createSettingsButton()
     createSliders()
 
-    for(let i = 1; i <= 2* currentRound;  i++) {
-        platforms[i-1] = new Platform(1100-500*i/1.25, player.position.y-130*i, 200, 20)
-    }
-    
-
-    // Zombies 
-    spawnZombies(2)
-    /*for(let i = 0; i < 3;  i++) {
-        let rand_x = Math.random() * ( (player.position.x + 800) - (player.position.x - 700) ) + (player.position.x - 150)
-        //ssslet rand_y = Math.random() * ( 515 - (player.position.y - 00) ) + (player.position.y - 200)
-        zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
-    }*/
-
-    
+    createPlatforms()
 
     for(let i = 0; i < 10; i++) {
         heart[i] = createSprite()
@@ -288,19 +309,29 @@ function startGame() {
     }
     life.resize(0, 30)
     nolife.resize(0, 30)
-    lifeCounter = 10
-
     
+   
 
     zombieCounter.resize(0, 70)
 
-    for(let i = 0; i < 1;  i++) {
-        keys[i] = new Key(1000, 450, false)
+    for(let i = 0; i < TOTAL_ROUNDS;  i++) {
+        keys[i] = new Key(gates[i].x-200, 450, false)
     }
 
-    
-    //createSettingsButton()
+}
 
+function drawObjects() {
+    //image(tree, gates[1].x-700, 515-90, 120, 150)
+}
+
+function createPlatforms() {
+    //platforms[i-1] = new Platform(1100*currentRound-500*i/1.25, player.position.y-130*i, 200, 20)
+    platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 22)
+    platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 200, 22)
+    platforms[2] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 22)
+    platforms[3] = new Platform(gates[2].x - 520, player.position.y-110*1.8, 320, 22)
+    platforms[4] = new Platform(gates[3].x - 520, player.position.y-110*1.8, 320, 22)
+    platforms[5] = new Platform(gates[4].x - 520, player.position.y-110*1.8, 320, 22)
 }
 
 // ----------------------- SETTINGS FUNCTIONS -----------------------
@@ -308,24 +339,32 @@ function startGame() {
 function createSettingsButton() {
     //let buttonX = constrain(1200, 1200, 1200)
 
-    let buttonX = constrain(camera.position.x+600, camera.position.x+600, camera.position.x+600)
-    let buttonY = constrain(camera.position.y+20, camera.position.y+20, camera.position.y+20)
+    //let buttonX = constrain(camera.position.x+600, camera.position.x+600, camera.position.x+600)
+    //let buttonY = constrain(camera.position.y+20, camera.position.y+20, camera.position.y+20)
+    let buttonX = 100
+    let buttonY = 630
+    console.log('width: '+width)
+    console.log('height: '+height)
     //settingsButton = createButton('Settings')
     settingsButton = createImg('assets/settings.avif')
+    //settingsButton.position(player.position.x + 500, buttonY)
     settingsButton.position(buttonX, buttonY)
     settingsButton.size(30, 30)
     settingsButton.mousePressed(buttonPressed)
+    /*/settingsButton.style('position', 'absolute')
+    //imgButton.style('position', 'absolute');
+    settingsButton.style('left', buttonX + 'px');
+    settingsButton.style('top', buttonY + 'px');*/
 }
 
 function buttonPressed() {
     GAME_STATE = 'SETTINGS'
-    openSettingsButton = !openSettingsButton
 
     noLoop()
 }
 
 function createSliders() {
-    musSliderPosX = (width / 2)
+    musSliderPosX = (player.position.x + 100)
     musSliderPosY = (height / 3.5) + 70
     musSlider = createSlider(0, 1, 0.5, 0.01);           // Arguments: min, max, default, step
     musSlider.position( musSliderPosX, musSliderPosY );
@@ -373,6 +412,49 @@ function settingsDescription() {
     text("Press ESC to resume!", camera.position.x - 200, audioSliderPosY + 110 )
 }
 
+function instructionsDescription() {
+    fill(255, 0, 0)
+    textSize(55)
+    textFont('Rubik Doodle Shadow')
+    text("Instructions", camera.position.x - 190, musSliderPosY - 150 )
+
+    let Y = musSliderPosY - 90
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press W to Jump", camera.position.x - 135, Y)
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press A to move Left", camera.position.x - 169, Y + 1*45 )
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press D to move Right", camera.position.x - 177, Y + 2*45 )
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press S to Shot", camera.position.x - 135, Y + 3*45 )
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press Q to teleport when in front of graves", camera.position.x - 330, Y + 4*45 )
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press I for Instructions", camera.position.x - 190, Y + 5*45 )
+
+    fill(120, 255, 200)
+    textSize(35)
+    textFont('Rubik Doodle Shadow')
+    text("Press ESC to resume!", camera.position.x - 200, Y + 380 )
+}
+
 function showSliders() {
     if (musSlider) musSlider.show()
 
@@ -388,17 +470,40 @@ function hideSliders() {
 
 // ----------------------- END OF SETTINGS FUNCTIONS -----------------------
 
-function startNewWave() {
-    newWaveStart = true
-    if (currentWave === 3) {
-        currentWave = 1;
-        currentRound++;
-        return;
+function startNewWave(currRound) {
+    // WHEN THE HIGH SCORE GAME MODE IS NOT REACHED YET
+    if (!playForHighScore) {                    
+        waveText = true
+        newWaveStart = true
+        if (currentWave === 4) {
+            console.log('in')
+            currentWave = 1;
+            passedAllWaves = true
+    
+            currentRound++;
+            if (currentRound === TOTAL_ROUNDS + 1) {
+                finishedAllRounds = true
+                currentRound = TOTAL_ROUNDS
+            }
+    
+            console.log('new round: ' + currentRound)
+            currRoundStarted = false
+        } else {
+            if (!finishedAllRounds) {           
+                spawnZombies(1)
+                currentWave++;
+            }
+            
+           // console.log('current round: '+ currentRound)
+        }
     } else {
-        currentWave++;
-        spawnZombies(2*currentWave)
+       // spawnZombies(1*currRound)
+        spawnZombies(1)
     }
+    
+       
 }
+
 
 function spawnZombies(numZombies) {
     newWaveTime = millis()
@@ -412,5 +517,17 @@ function spawnZombies(numZombies) {
         //ssslet rand_y = Math.random() * ( 515 - (player.position.y - 00) ) + (player.position.y - 200)
         zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
     }
+
+}
+
+function checkKillstreak() {
+    if (currentLives > lifeCounter) {           // Resets the killStreak if needed
+        killStreak = 0
+        currentLives = lifeCounter
+    }
+    
+}
+
+function displaySuperPower() {
 
 }

@@ -9,7 +9,7 @@ class Platform {
     }
 
     drawPlatform() {
-        fill(77, 64, 44);
+        fill(100, 40, 0);
         rect(this.x, this.y, this.w, this.h);
     }
 
@@ -124,7 +124,8 @@ class Zombie extends Character {
             this.a.remove()
             zombies.splice(index, 1)
             //console.log(zombies.length)
-            score += 1
+            score++
+            killStreak++
         }
     }
 
@@ -227,6 +228,7 @@ class Gate {
 
             if (this.u) { return }
         }
+        
     }
 
     hasKey() {
@@ -315,11 +317,11 @@ class Button {
         //rect(this.x, this.y, this.imageWidth, this.imageHeight)
         image(this.image, this.x, this.y, this.imageWidth, this.imageHeight)
         this.checkHover()
-        console.log()
+        //console.log()
     }
 
     checkHover() {
-        console.log(mouseX)
+        //console.log(mouseX)
         //console.log(mouseY > 1555)
         /*if (mouseX > 1555 && mouseX < 2000) {
             return true
@@ -327,7 +329,7 @@ class Button {
         //console.log(mouseX > this.x && mouseX < this.x + this.imageWidth && mouseY > this.y && mouseY < this.y + this.imageHeight)
         if (mouseX > this.x && mouseX < this.x + this.imageWidth && mouseY > this.y && mouseY < this.y + this.imageHeight) {
             //if (mouseIsPressed) {
-                //GAME_STATE = 'SETTINGS'
+                GAME_STATE = 'SETTINGS'
 
                 //noloop()
                 return true

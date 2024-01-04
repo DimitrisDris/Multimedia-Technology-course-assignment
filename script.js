@@ -22,82 +22,85 @@ function draw() {
         background(0)
         settingsButton.hide()
 
-        /*fill(255, 0, 0)
-        textSize(50)
-        textFont('Rubik Doodle Shadow')
-        text("Music Volume", camera.position.x - 150, musSliderPosY - 60 )
-
-        fill(255, 0, 0)
-        textSize(50)
-        textFont('Rubik Doodle Shadow')
-        text("Audio Volume", camera.position.x - 150, audioSliderPosY - 60)*/
-
         settingsDescription()
         showSliders()
-    } /*else if (GAME_STATE === ' START') {
-        fill(255, 0, 0)
-        textSize(50)
-        textFont('Rubik Doodle Shadow')
-        text("Press SPACE to start!", camera.position.x - 190, musSliderPosY - 55 )
-        //drawSprites()
-    }*/
-     else if (GAME_STATE === 'PLAYING') {
-
-        /*if (!settingsButton) {
-            settingsButton = new Button(player.position.x - 40, 30, settingsImg, 30, 30)
-        } else {
+    } else if (GAME_STATE === 'INSTRUCTIONS') {
+        background(0)
+        noLoop()
+        settingsButton.hide()
+        instructionsDescription()
+    }else if (GAME_STATE === 'PLAYING') {
         
-        }*/
-        //settingsButton = new SetButton(player.position.x - 40, 30, settingsImg, 30, 30)
-        //settingsButton.display()
-
-        
-        
-        /*if (!runGameBool) {
-            noloop()
-            
-            fill(255, 0, 0)
-            textSize(50)
-            textFont('Rubik Doodle Shadow')
-            text("Press SPACE to start!", camera.position.x - 190, musSliderPosY - 55 )
-        }*/
         background(backgroundImg)
 
-        //image(zombieCounter, player.position.x + 40, 30, 30, 30)
-        //settingsButton.position.x = player.position.x - 30
-        //settingsButton.position.y = 30
-        
-        
+        drawObjects()
 
-        // Displaying the score 
-        image(zombieCounter, player.position.x - 40, 10)
-        textSize(40)
-        fill(200, 0, 0)
-        text(score, player.position.x + 60, 60)
-
-        // Displaying the current round
-        fill(255, 0, 0)
-        textSize(50)
-        textFont('Rubik Doodle Shadow')
-        text("Round "+currentRound, player.position.x - 90, 120)
-
-        settingsButton = new Button(player.position.x + 500, 25, settingsImg, 100, 100)
-        settingsButton.display()
-        settingsButton.checkHover()
-
-        // Displaying the current wave for few secs
-        if (newWaveStart) {
+        if (!startGameBool) { 
+            stroke(0)              // To start game
             fill(255, 0, 0)
-            textSize(50)
+            textSize(35)
+            textAlign(CENTER)
             textFont('Rubik Doodle Shadow')
-            text("Wave "+currentWave, player.position.x - 90, 230)  
-            
-            if (millis() - newWaveTime > 3500) {
-                newWaveStart = false
-            }
+            text("Press SPACE To Start!", player.position.x, height/2 - 80) 
+
+            fill(255, 0, 0)
+            textSize(35)
+            textAlign(CENTER)
+            textFont('Rubik Doodle Shadow')
+            text("Press I For Instructions!", player.position.x, height/2 + 80) 
         }
 
-        player.position.x = constrain(player.position.x, -500, 3500)            // To control the play area of the game
+        if (startGameBool) {
+            // Displaying the score 
+            image(zombieCounter, player.position.x - 40, 10)
+            textSize(40)
+            fill(200, 0, 0)
+            textFont('Rubik Doodle Shadow')
+            text(score, player.position.x + 60, 60)
+
+            //heart[i].position.x = camera.position.x - 550 + i*32
+                //heart[i].position.y = camera.position.y - 250
+
+            fill(255, 0, 0)
+            textSize(25)
+            textFont('Rubik Doodle Shadow')
+            text("Zombies alive: "+zombies.length, camera.position.x - 550, camera.position.y - 190)
+
+            fill(255, 0, 0)
+            textSize(25)
+            textFont('Rubik Doodle Shadow')
+            text("Killstreak : "+killStreak, camera.position.x + 430, camera.position.y - 240)
+
+            // Displaying the current round
+            if (!playForHighScore) {
+                fill(255, 0, 0)
+                textSize(50)
+                textFont('Rubik Doodle Shadow')
+                text("Round "+currentRound, player.position.x - 90, 120)
+            } else {
+                fill(255, 0, 0)
+                textSize(50)
+                textFont('Rubik Doodle Shadow')
+                text("High Score Mode", player.position.x - 90, 120)
+            }
+
+
+            // Displaying the current wave for few secs
+            if (waveText && !finishedAllRounds) {
+                fill(255, 0, 0)
+                textSize(50)
+                textFont('Rubik Doodle Shadow')
+                text("Wave "+(currentWave-1), player.position.x - 90, 230) 
+                
+                if (millis() - newWaveTime > 2000) {
+                    waveText = false
+                }
+            }
+
+        }
+
+        // -------------------- To control the play area of the game --------------------
+        player.position.x = constrain(player.position.x, -500, gates[TOTAL_ROUNDS-1].x+150)            
 
         player.velocity.y = player.velocity.y + GRAVITY
         camera.position.x = player.position.x
@@ -127,7 +130,9 @@ function draw() {
             player.position.y = height - 50 - player.height / 2
         }
 
-        // Platforms draw
+        // -------------------- -------------------- --------------------
+
+        // -------------------- GRAPHICS --------------------
         push()
         platforms.forEach((p) => p.drawPlatform());
         platforms.forEach((p) => p.checkContact());
@@ -140,7 +145,6 @@ function draw() {
             }
         }
 
-        // Zombies draw 
         push()
         if (zombies.length > 0) {
             zombies.forEach((z) => z.checkContact());
@@ -148,8 +152,6 @@ function draw() {
             zombies.forEach((z) => z.takeDamage());
         }
         pop()
-
-        if (zombies.length === 0) startNewWave()
 
         push()
         keys.forEach((k) => k.drawKey());
@@ -189,8 +191,6 @@ function draw() {
             
         }
         pop()
-    
-        
 
         push()
         for (b of bullets) {
@@ -229,33 +229,66 @@ function draw() {
             }
         })
 
-        /*if (openGateBool) {
-            openGateSound.setVolume(0.1)
-            openGateSound.rate(1.0)
-            openGateSound.play()
-            openGateBool = false
-        }*/
-        
-        // PLAYER ANIMATION HANDLING 
+        // -------------------- -------------------- --------------------
 
-        if (player.velocity.x == 0 && player.velocity.y == 0) {
-            //player.changeAnimation('Idle')
-            player.changeAnimation('LaraStand')
+        // -------------------- GAME LOGIC (ROUNDS) --------------------
+
+        checkKillstreak()
+
+        if (currentRound <= TOTAL_ROUNDS && !gates[currentRound-1].u  && 
+            player.position.x > gates[currentRound-1].x - 600 ) {
+                
+                if (!passedAllWaves && zombies.length === 0){
+                    console.log('currRound: '+currentRound+'cond: '+gates[currentRound-1].passedWaves)
+                    currRoundStarted = true
+                    startNewWave(currentRound) 
+                } else if(passedAllWaves) {
+                    passedAllWaves = false
+                }
+                
+                
+            }
+            
+        if (finishedAllRounds) {
+            
+            fill(255, 0, 0)
+            textSize(32)
+            textAlign(CENTER)
+            textFont('Rubik Doodle Shadow')
+            text("Press Y To Play For High Score or E To End The Game!", player.position.x, height/2 ) 
         }
 
-        if (keyIsDown(83)) {
-            if (pistolShotBool) {
+        if (playForHighScore) {
+            if (zombies.length === 0) {
+                setTimeout(function() { 
+                    startNewWave(currentRound);
+                }, 2000 )
+                //console.log(setTimeout(startNewWave, 2000, currentRound))
+            }
+        }
+
+        // -------------------- --------------------  --------------------
+        
+        // -------------------- PLAYER ANIMATION HANDLING --------------------
+
+        if (player.velocity.x == 0 && player.velocity.y == 0) {
+            player.changeAnimation('Idle')
+            //player.changeAnimation('LaraStand')
+        }
+
+        if (keyIsDown(83) && startGameBool && !finishedAllRounds) {
+            if (pistolShotBool && startGameBool) {
                 //pistolShotSound.setVolume(0.1)
                 pistolShotSound.rate(1.0)
                 pistolShotSound.play()
                 pistolShotBool = false
             }
             //playerFireSound.play()
-            //player.changeAnimation('Shoot')
-            player.changeAnimation('LaraAttack')
+            player.changeAnimation('Shoot')
+            //player.changeAnimation('LaraAttack')
         }
 
-        if (keyIsDown(87) && (groundSprites.overlap(player) || onTop)) {
+        if (keyIsDown(87) && startGameBool && !finishedAllRounds && (groundSprites.overlap(player) || onTop)) {
             if (playerJumpBool) {
                 //playerJumpSound.setVolume(0.1)
                 playerJumpSound.rate(1.0)
@@ -263,47 +296,28 @@ function draw() {
                 playerJumpBool = false
             }
             player.velocity.y = JUMP
-            //player.changeAnimation('Jump')
-            player.changeAnimation('LaraJump')
+            player.changeAnimation('Jump')
+            //player.changeAnimation('LaraJump')
         }
-        if (keyIsDown(68)) {
+        if (keyIsDown(68) && startGameBool && !finishedAllRounds) {
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
             
 
             s = 40
             player.mirrorX(1)
-            //player.changeAnimation('Run')
-            player.changeAnimation('LaraRun')
+            player.changeAnimation('Run')
+            //player.changeAnimation('LaraRun')
             
         }
-        if (keyIsDown(65)) {
+        if (keyIsDown(65) && startGameBool && !finishedAllRounds) {
             player.position.x = player.position.x - 5
             camera.position.x = player.position.x - 5
             s = -40
             player.mirrorX(-1)
-            //player.changeAnimation('Run')        
-            player.changeAnimation('LaraRun')   
+            player.changeAnimation('Run')        
+            //player.changeAnimation('LaraRun')   
             //pop()
-        }
-
-        /*if (playerRunBool && (keyIsDown(65) || keyIsDown(68))) {                        // This is for the run sound
-            playerRunSound.setVolume(0.1)
-            playerRunSound.play()
-            playerRunBool = false
-        }*/
-
-        /*if (player.velocity.x != 0) {
-
-        }*/
-
-        if (keyIsDown(32)) {
-            text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
-            text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
-            text('----------------', player.position.x - 100, player.position.y)
-            text('|\n|\n|\n|', player.position.x, player.position.y - 110)
-            text('----------------', player.position.x + 40, player.position.y)
-            text('|\n|\n|\n|', player.position.x, player.position.y + 70)
         }
 
         if (lifeCounter === 0) {
@@ -311,9 +325,10 @@ function draw() {
             player.changeAnimation('Dead')
             
             if (player.getAnimationLabel() === 'Dead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
-            //grizzly.play()
             
         }
+
+        // -------------------- -------------------- --------------------
 
         drawSprites()
 
@@ -326,10 +341,6 @@ function draw() {
 
 function keyPressed() {
 
-    if (!runGameBool && keyIsDown(32)) {
-        runGameBool = true
-        loop()
-    }
     
     if (keyIsDown(81)) {
         text(onPortal[0],player.position.x,300)
@@ -338,7 +349,7 @@ function keyPressed() {
         }
     }
 
-    if (keyIsDown(83)) {
+    if (keyIsDown(83) && startGameBool && !finishedAllRounds) {
         pistolShotBool = true
         let bullet = {
             x: player.position.x + s,
@@ -348,13 +359,40 @@ function keyPressed() {
         bullets.push(bullet)
     }
 
+    if (keyIsDown(32) && startGameBool && !finishedAllRounds) {
+        text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
+        text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
+        text('----------------', player.position.x - 100, player.position.y)
+        text('|\n|\n|\n|', player.position.x, player.position.y - 110)
+        text('----------------', player.position.x + 40, player.position.y)
+        text('|\n|\n|\n|', player.position.x, player.position.y + 70)
+    }
+
+    if (keyIsDown(89) && finishedAllRounds) {           // PRESSED Y
+        finishedAllRounds = false
+        playForHighScore = true
+    }
+
+    if (keyIsDown(101) && finishedAllRounds) {          // PRESSED E
+        GAME_STATE = 'END'
+        finishedAllRounds = false
+        playForHighScore = false
+    }
+
+    if (keyIsDown(73)) {
+        GAME_STATE = 'INSTRUCTIONS'
+    }
+
     if (keyIsDown(87)) {
         playerJumpBool = true
     }
 
-    if (GAME_STATE === 'SETTINGS' && keyCode === ESCAPE ) {
+    if (!startGameBool && keyIsDown(32)) {
+        startGameBool = true
+    }
+
+    if ( (GAME_STATE === 'SETTINGS' || GAME_STATE === 'INSTRUCTIONS') && keyCode === ESCAPE ) {
         GAME_STATE = 'PLAYING'
-        openSettingsButton = false;
         settingsButton.show();
         hideSliders();
         // Unfreezes game
@@ -362,14 +400,6 @@ function keyPressed() {
         
     }
 
-    /*if (openSettingsButton && keyCode === ESCAPE ) {
-        openSettingsButton = false;
-        settingsButton.show();
-        hideSliders();
-        // Unfreezes game
-        loop()
-        
-    }*/
 }
 
 function mouseClicked() {
@@ -387,13 +417,6 @@ function mouseClicked() {
         }
     }
 
-    if (mouseX > settingsButton.x && mouseX < settingsButton.x + settingsButton.imageWidth &&
-        mouseY > settingsButton.y && mouseY < settingsButton.y + settingsButton.imageWidth) {
-            GAME_STATE = 'SETTINGS'
-            noloop()
-        }
-
-    
 }
 
 
@@ -405,6 +428,7 @@ function endGame() {
     isGameOver = true
 }
 
+function windowResized() {
+    
 
-
-
+}
