@@ -326,12 +326,12 @@ function drawObjects() {
 
 function createPlatforms() {
     //platforms[i-1] = new Platform(1100*currentRound-500*i/1.25, player.position.y-130*i, 200, 20)
-    platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 22)
-    platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 200, 22)
-    platforms[2] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 22)
-    platforms[3] = new Platform(gates[2].x - 520, player.position.y-110*1.8, 320, 22)
-    platforms[4] = new Platform(gates[3].x - 520, player.position.y-110*1.8, 320, 22)
-    platforms[5] = new Platform(gates[4].x - 520, player.position.y-110*1.8, 320, 22)
+    platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
+    platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 200, 20)
+    platforms[2] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 20)
+    platforms[3] = new Platform(gates[2].x - 520, player.position.y-110*1.8, 320, 20)
+    platforms[4] = new Platform(gates[3].x - 520, player.position.y-110*1.8, 320, 20)
+    platforms[5] = new Platform(gates[4].x - 520, player.position.y-110*1.8, 320, 20)
 }
 
 // ----------------------- SETTINGS FUNCTIONS -----------------------

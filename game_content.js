@@ -21,20 +21,20 @@ class Platform {
             if ((Math.ceil((player.position.y + 45) / 5) * 5 >= this.y) && (Math.ceil((player.position.y + 45) / 5) * 5 <= this.y + 5)) { // If player is on top of the platform
                 player.position.y = this.y - 45
                 player.velocity.y = 0
-                // console.log('AAA')
+                console.log('AAA')
 
             }else if ((player.position.y + 45 >= this.y + this.h) && (player.position.y - 24 <= this.y)) { // If platform is between player's head and feet
                 if (player.position.x - 20 <= this.x) { // If player is on the platform's left end
                     player.position.x = this.x - 20
-                    // console.log('BBB1')
+                    console.log('BBB1')
                 }else if (player.position.x + 20 >= this.x + this.w) { // If player is on the platform's right end
                     player.position.x = this.x + this.w + 20
-                    // console.log('BBB2')
+                    console.log('BBB2')
                 }
             }else if (Math.ceil((player.position.y - 24) / 5) * 5 === this.y + this.h) { // If player is beneath the platform
                 player.position.y = this.y + this.h + 55
                 player.velocity.y = 0
-                // console.log('CCC')
+                console.log('CCC')
             }
         }
         // text('AAAAAAA1',this.x , this.y)

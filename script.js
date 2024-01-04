@@ -322,6 +322,26 @@ function draw() {
             //pop()
         }
 
+        if (keyIsDown(32) && startGameBool) {
+            textFont('Arial')
+            textSize(20)
+    
+            text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
+            text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
+            text('----------------', player.position.x - 130, player.position.y)
+            text('|\n|\n|', player.position.x, player.position.y - 150)
+            text('----------------', player.position.x + 30, player.position.y)
+            text('|\n|\n|', player.position.x, player.position.y + 80)
+        }
+        textFont('Arial')
+        textSize(20)
+
+        text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
+        text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
+        text('----------------', player.position.x - 130, player.position.y)
+        text('|\n|\n|', player.position.x, player.position.y - 150)
+        text('----------------', player.position.x + 30, player.position.y)
+        text('|\n|\n|', player.position.x, player.position.y + 80)
         if (lifeCounter === 0) {
             //removeSprites(heart)
             player.changeAnimation('Dead')
@@ -359,18 +379,6 @@ function keyPressed() {
             s: s
         }
         bullets.push(bullet)
-    }
-
-    if (keyIsDown(32)) {
-        textFont('Arial')
-        textSize(20)
-
-        text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
-        text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
-        text('----------------', player.position.x - 130, player.position.y)
-        text('|\n|\n|', player.position.x, player.position.y - 150)
-        text('----------------', player.position.x + 30, player.position.y)
-        text('|\n|\n|', player.position.x, player.position.y + 80)
     }
 
     if (keyIsDown(89) && finishedAllRounds) {           // PRESSED Y
