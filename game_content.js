@@ -9,33 +9,38 @@ class Platform {
     }
 
     drawPlatform() {
-        fill(100, 40, 0);
+        fill(77, 64, 44);
         rect(this.x, this.y, this.w, this.h);
     }
 
     checkContact() {
+        textFont('Arial')
+        textSize(24)
 
         if ((player.position.x >= this.x) && (player.position.x <= this.x + this.w)) { // If player is in platform's width
-            
-            if ((Math.ceil((player.position.y + 55) / 5) * 5 >= this.y) && (Math.ceil((player.position.y + 55) / 5) * 5 <= this.y + 5)) { // If player is on top of the platform
-                player.position.y = this.y - 55.1
+            if ((Math.ceil((player.position.y + 45) / 5) * 5 >= this.y) && (Math.ceil((player.position.y + 45) / 5) * 5 <= this.y + 5)) { // If player is on top of the platform
+                player.position.y = this.y - 45
                 player.velocity.y = 0
+                // console.log('AAA')
 
-            }else if ((player.position.y + 55 >= this.y) && (player.position.y - 45 <= this.y + 20)) { // If platform is between player's head and feet
-
-                if (player.position.x <= this.x + 5) { // If player is on the platform's left end
-                    player.position.x = this.x
-                }else if (player.position.x + 5 >= this.x + this.w) { // If player is on the platform's right end
-                    player.position.x = this.x + this.w
+            }else if ((player.position.y + 45 >= this.y + this.h) && (player.position.y - 24 <= this.y)) { // If platform is between player's head and feet
+                if (player.position.x - 20 <= this.x) { // If player is on the platform's left end
+                    player.position.x = this.x - 20
+                    // console.log('BBB1')
+                }else if (player.position.x + 20 >= this.x + this.w) { // If player is on the platform's right end
+                    player.position.x = this.x + this.w + 20
+                    // console.log('BBB2')
                 }
- 
-
-            }else if (Math.ceil((player.position.y - 55) / 5) * 5 === this.y + 20) { // If player is beneath the platform
-                player.position.y = this.y + 75.1
+            }else if (Math.ceil((player.position.y - 24) / 5) * 5 === this.y + this.h) { // If player is beneath the platform
+                player.position.y = this.y + this.h + 55
                 player.velocity.y = 0
+                // console.log('CCC')
             }
-
         }
+        // text('AAAAAAA1',this.x , this.y)
+        // text('AAAAAAA2',this.x + 200, this.y + this.h)
+        // text('XXXXXXX1',player.position.x, player.position.y - 50)
+        // text('XXXXXXX2',player.position.x, player.position.y + 50)
 
     }
 

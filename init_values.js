@@ -172,14 +172,14 @@ function preload() {
         'assets/adventure_girl/Dead (10).png'
     )
 
-    laraRun = loadAnimation('assets/lara_run/lara run/run1.png',
-        'assets/lara_run/lara run/run2.png',
-        'assets/lara_run/lara run/run3.png',
-        'assets/lara_run/lara run/run4.png',
-        'assets/lara_run/lara run/run5.png',
-        'assets/lara_run/lara run/run6.png',
-        'assets/lara_run/lara run/run7.png',
-        'assets/lara_run/lara run/run8.png'
+    laraRun = loadAnimation('assets/laracrop/run1.png',
+        'assets/laracrop/run2.png',
+        'assets/laracrop/run3.png',
+        'assets/laracrop/run4.png',
+        'assets/laracrop/run5.png',
+        'assets/laracrop/run6.png',
+        'assets/laracrop/run7.png',
+        'assets/laracrop/run8.png'
     )
 
     laraJump = loadAnimation('assets/laracrop/jump1.png',
@@ -296,7 +296,7 @@ function startGame() {
     player.addAnimation('LaraRun', laraRun)
     player.addAnimation('LaraJump', laraJump)
     player.addAnimation('LaraAttack', laraAttack)
-    player.scale = 0.25
+    player.scale = 1.8
 
     createSettingsButton()
     createSliders()

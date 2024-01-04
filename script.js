@@ -127,7 +127,8 @@ function draw() {
 
         if (groundSprites.overlap(player)) {
             player.velocity.y = 0
-            player.position.y = height - 50 - player.height / 2
+            // player.position.y = height - 110
+            player.position.y = height - 95
         }
 
         // -------------------- -------------------- --------------------
@@ -140,7 +141,7 @@ function draw() {
 
         onTop = false
         for (p of platforms) {
-            if ((Math.ceil((player.position.y + 55) / 5) * 5 === p.y) && ((player.position.x >= p.x) && (player.position.x <= p.x + p.w))) {
+            if ((Math.ceil((player.position.y + 45) / 5) * 5 === p.y) && ((player.position.x >= p.x) && (player.position.x <= p.x + p.w))) {
                 onTop = true
             }
         }
@@ -195,7 +196,8 @@ function draw() {
         push()
         for (b of bullets) {
             b.x += b.s / 4
-            circle(b.x, b.y, 10)
+            circle(b.x , b.y - 25, 8)
+
             if ((b.x > player.position.x + 400) || (b.x < player.position.x - 400)) {
                 bullets.pop(b)
             }
@@ -272,8 +274,8 @@ function draw() {
         // -------------------- PLAYER ANIMATION HANDLING --------------------
 
         if (player.velocity.x == 0 && player.velocity.y == 0) {
-            player.changeAnimation('Idle')
-            //player.changeAnimation('LaraStand')
+            // player.changeAnimation('Idle')
+            player.changeAnimation('LaraStand')
         }
 
         if (keyIsDown(83) && startGameBool && !finishedAllRounds) {
@@ -284,8 +286,8 @@ function draw() {
                 pistolShotBool = false
             }
             //playerFireSound.play()
-            player.changeAnimation('Shoot')
-            //player.changeAnimation('LaraAttack')
+            // player.changeAnimation('Shoot')
+            player.changeAnimation('LaraAttack')
         }
 
         if (keyIsDown(87) && startGameBool && !finishedAllRounds && (groundSprites.overlap(player) || onTop)) {
@@ -296,8 +298,8 @@ function draw() {
                 playerJumpBool = false
             }
             player.velocity.y = JUMP
-            player.changeAnimation('Jump')
-            //player.changeAnimation('LaraJump')
+            // player.changeAnimation('Jump')
+            player.changeAnimation('LaraJump')
         }
         if (keyIsDown(68) && startGameBool && !finishedAllRounds) {
             player.position.x = player.position.x + 5
@@ -306,8 +308,8 @@ function draw() {
 
             s = 40
             player.mirrorX(1)
-            player.changeAnimation('Run')
-            //player.changeAnimation('LaraRun')
+            // player.changeAnimation('Run')
+            player.changeAnimation('LaraRun')
             
         }
         if (keyIsDown(65) && startGameBool && !finishedAllRounds) {
@@ -315,8 +317,8 @@ function draw() {
             camera.position.x = player.position.x - 5
             s = -40
             player.mirrorX(-1)
-            player.changeAnimation('Run')        
-            //player.changeAnimation('LaraRun')   
+            // player.changeAnimation('Run')        
+            player.changeAnimation('LaraRun')   
             //pop()
         }
 
@@ -353,19 +355,22 @@ function keyPressed() {
         pistolShotBool = true
         let bullet = {
             x: player.position.x + s,
-            y: player.position.y + 10, //change
+            y: player.position.y,
             s: s
         }
         bullets.push(bullet)
     }
 
-    if (keyIsDown(32) && startGameBool && !finishedAllRounds) {
+    if (keyIsDown(32)) {
+        textFont('Arial')
+        textSize(20)
+
         text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
         text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
-        text('----------------', player.position.x - 100, player.position.y)
-        text('|\n|\n|\n|', player.position.x, player.position.y - 110)
-        text('----------------', player.position.x + 40, player.position.y)
-        text('|\n|\n|\n|', player.position.x, player.position.y + 70)
+        text('----------------', player.position.x - 130, player.position.y)
+        text('|\n|\n|', player.position.x, player.position.y - 150)
+        text('----------------', player.position.x + 30, player.position.y)
+        text('|\n|\n|', player.position.x, player.position.y + 80)
     }
 
     if (keyIsDown(89) && finishedAllRounds) {           // PRESSED Y
