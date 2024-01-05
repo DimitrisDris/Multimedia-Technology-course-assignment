@@ -365,8 +365,8 @@ function startGame() {
     }
 
     // for(let i = 0; i < 5;  i++) {
-        // var l = new Lava(200, 550, 4)
-        // lavaPools.push(l)
+        var l = new Lava(200, 550, 4)
+        lavaPools.push(l)
     // }
 
         
