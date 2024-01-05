@@ -75,17 +75,24 @@ class Zombie extends Character {
 
     checkContact() {
 
+        zombieAttackTime1 = performance.now()
+
         if ((player.position.x >= this.a.position.x - 50) && (player.position.x <= this.a.position.x + 50)) {
             
             if ((player.position.y + 55 >= this.a.position.y - 30) && (player.position.y - 45 <= this.a.position.y + 30)) {
+
                 if (player.position.x > this.a.position.x) {
                     player.velocity.x = 10
                 }else if (player.position.x < this.a.position.x + 50) {
                     player.velocity.x = -10
                 }
-                player.velocity.y = player.velocity.y - 5
-
-                if (lifeCounter > 0) lifeCounter--
+                player.velocity.y = player.velocity.y - 10
+                
+                if (lifeCounter > 0 && zombieAttackTime1 > zombieAttackTime2 + 500) {
+                    zombieAttackTime2 = performance.now()
+                    lifeCounter--
+                }
+                
             }
         }
     }
@@ -270,11 +277,14 @@ class Gate {
 
 class Portal {
 
-    constructor(x, y, scale, image) {
-        this.x = x
-        this.y = y
-        this.firstPortalSprite = createSprite(x, y)
-        this.secondPortalSprite = createSprite(this.x+200, this.y)
+    constructor(x1, y1, x2, y2, scale, image) {
+        this.x1 = x1
+        this.y1 = y1
+        this.x2 = x2
+        this.y2 = y2
+
+        this.firstPortalSprite = createSprite(this.x1, this.y1)
+        this.secondPortalSprite = createSprite(this.x2, this.y2)
 
         this.firstPortalSprite.addImage(image)
         this.firstPortalSprite.scale = scale
@@ -284,29 +294,22 @@ class Portal {
                
     }
 
-    /*constructor(x1, y1, x2, y2) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-    }
-
+    /*
     drawPortal() {
         drawSprites()
     }*/
 
     checkContact() {
-
-        if ((player.position.x < this.x1 + 100) && (player.position.x > this.x1)) {
-            if ((player.position.y < this.y1 + 250) && (player.position.y > this.y1 - 250)) {
-                return [true, this.x2 + 50]
+        if ((player.position.x < this.x1 + 50) && (player.position.x > this.x1 - 50)) {
+            if ((player.position.y < this.y1 + 50) && (player.position.y > this.y1 - 50)) {
+                return [true, this.x2]
             }else{
                 return [false]
             }
             
-        }else if ((player.position.x < this.x2 + 100) && (player.position.x > this.x2)) {
-            if ((player.position.y < this.y2 + 250) && (player.position.y > this.y2 - 250)) {
-                return [true, this.x1 + 50]
+        }else if ((player.position.x < this.x2 + 50) && (player.position.x > this.x2 - 50)) {
+            if ((player.position.y < this.y2 + 50) && (player.position.y > this.y2 - 50)) {
+                return [true, this.x1]
             }else{
                 return [false]
             }
@@ -350,6 +353,33 @@ class Button {
             //}
             
         }
+    }
+
+}
+
+class Lava {
+
+
+    constructor(x, y, w) { // x, y is the upper left corver of the lava block and w is the length (how many ground blocks lava will be)
+        this.x = x;
+        this.y = y;
+        this.w = w;
+
+        for (let i = 0; i < this.w; i++) {
+            createSprite(x + 50*i, y).addImage(lavaGif)
+            createSprite(x + 50*i, y + 25).addImage(lavaGif)
+        }
+    }
+
+    checkContact() {
+        if (player.position.x >= this.x && player.position.x <= this.x + this.w*50) {
+            if (player.position.y + 45 === this.y) {
+                player.velocity.x = 1
+                player.position.y += 55
+                lifeCounter = 0
+            }
+        }
+
     }
 
 }

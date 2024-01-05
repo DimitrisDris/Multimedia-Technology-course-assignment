@@ -40,12 +40,15 @@ var chooseEnd
 var chooseEndClock
 var waveTimeout
 
+var lavaPools = new Array()
 var platforms = new Array()
 var zombies = new Array()
 var onTop
 var zombie
 var heart = new Array()
 var lifeCounter
+var zombieAttackTime1 = 0
+var zombieAttackTime2 = 1
 
 var keys = new Array()
 var gates = new Array()
@@ -256,7 +259,7 @@ function preload() {
     deadBushImg = loadImage('assets/DeadBush.png')
     signImg = loadImage('assets/Sign.png')
     crossTombstoneImg = loadImage('assets/crossTombstone.png')
-    lavaGif = loadImage('assets/lava_00.gif')
+    lavaGif = loadImage('assets/lava.gif')
 
     // Sounds 
 
@@ -303,22 +306,20 @@ function startGame() {
 
     groundSprites = new Group()
 
-
-    for (var n = -10; n < (width / 50 + 1) - 8; n++) {
-        var groundSprite = createSprite(n * 50, height - 25, 50, 50)
-
-        groundSprite.addImage(ground)
-        ground.resize(50, 50)
-
-        groundSprites.add(groundSprite)
-    }     
+  
 
     for(let i = 0; i < 1;  i++) {
-        portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
+        portals[i] = new Portal(300, 520, 500, 520, 1.2, tombstoneImg)    
+    }
 
     for(let i = 0; i < TOTAL_ROUNDS;  i++) {
-        gates[i] = new Gate(2000*(i+1), 450, false)
+        gates[i] = new Gate(2000*(i+1), 460, false)
     }
+
+
+
+
+
 
         // Player sprite and animations 
     player = createSprite(100, 515)
@@ -333,6 +334,15 @@ function startGame() {
     player.addAnimation('LaraAttack', laraAttack)
     player.addAnimation('LaraDead', laraDead)
     player.scale = 1.8
+
+    for (var n = -10; n < (width / 50 + 1) - 8; n++) {
+        var groundSprite = createSprite(n * 50, height - 25, 50, 50)
+
+        groundSprite.addImage(ground)
+        ground.resize(50, 50)
+
+        groundSprites.add(groundSprite)
+    }   
 
     createSettingsButton()
     createSliders()
@@ -354,6 +364,12 @@ function startGame() {
         keys[i] = new Key(gates[i].x-200, 460, false)
     }
 
+    // for(let i = 0; i < 5;  i++) {
+        // var l = new Lava(200, 550, 4)
+        // lavaPools.push(l)
+    // }
+
+        
 }
 
 function createPlatforms() {
@@ -578,7 +594,7 @@ function instructionsDescription() {
     fill(255, 0, 0)
     textSize(30)
     textFont('Rubik Doodle Shadow')
-    text("Press 'P' to (un)show Player position", camera.position.x - 287.5, Y + 7*45 )
+    text("Press 'P' to (un)show stats for Nerds", camera.position.x - 287.5, Y + 7*45 )
 
     fill(120, 255, 200)
     textSize(35)

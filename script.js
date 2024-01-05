@@ -127,16 +127,22 @@ function draw() {
             }
         }        
 
-
+        // l = createSprite(200,540,50,50).addImage(lavaGif)
+        lavaGif.resize(50, 50)
+        
         if (groundSprites.overlap(player)) {
             player.velocity.y = 0
-            // player.position.y = height - 110
             player.position.y = height - 95
         }
 
         // -------------------- -------------------- --------------------
 
         // -------------------- GRAPHICS --------------------
+        
+        push()
+        lavaPools.forEach((l) => l.checkContact());
+        pop()
+
         push()
         platforms.forEach((p) => p.drawPlatform());
         platforms.forEach((p) => p.checkContact());
@@ -169,7 +175,7 @@ function draw() {
         pop()
 
         push()
-        //portals.forEach((p) => p.drawPortal());
+        // portals.forEach((p) => p.drawPortal());
         portals.forEach((p) => onPortal = p.checkContact());
         pop()
 
@@ -337,13 +343,13 @@ function draw() {
         }
 
         if (showPlayerPosBool) {
-            textFont('Arial')
             textSize(20)
-    
-            text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
-            text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
+            textFont('Arial')
+
+            text('Player x: ' + player.position.x + ' , ' + 'Player y: ' + player.position.y, player.position.x - 500, 300)
+            text('Player Velocity x: ' + player.velocity.x + ' , ' + 'Player Velocity y: ' + player.velocity.y, player.position.x - 500, 330)
             text('----------------', player.position.x - 130, player.position.y)
-            text('|\n|\n|', player.position.x, player.position.y - 150)
+            text('|\n|\n|', player.position.x, player.position.y - 120)
             text('----------------', player.position.x + 30, player.position.y)
             text('|\n|\n|', player.position.x, player.position.y + 80)
         }
@@ -410,14 +416,11 @@ function keyPressed() {
     if (keyIsDown(80)) showPlayerPosBool = !showPlayerPosBool
 
     if (keyIsDown(32)) {
-       
-        console.log('olala')
-        
         textSize(20)
         textFont('Arial')
-        text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
-        text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
-        text('----------------', player.position.x - 130, player.position.y)
+        text('Player x: ' + player.position.x + ' , ' + 'Player y: ' + player.position.y, player.position.x - 100, 300)
+        text('Player Velocity x: ' + player.velocity.x + ' , ' + 'Player Velocity y: ' + player.velocity.y, player.position.x - 100, 330)
+        text('----------------', player.position.x - 130, player.position.y + 150)
         text('|\n|\n|', player.position.x, player.position.y - 150)
         text('----------------', player.position.x + 30, player.position.y)
         text('|\n|\n|', player.position.x, player.position.y + 80)
