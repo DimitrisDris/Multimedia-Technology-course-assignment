@@ -9,8 +9,9 @@ class Platform {
     }
 
     drawPlatform() {
-        fill(77, 64, 44);
-        rect(this.x, this.y, this.w, this.h);
+        //fill(77, 64, 44);
+        fill(40, 40, 40);
+        rect(this.x, this.y, this.w, this.h, 8);
     }
 
     checkContact() {
@@ -90,15 +91,22 @@ class Zombie extends Character {
     }
 
     move() {
-
-        if (this.a.position.x > this.x + 200) {
-            this.a.velocity.x = -this.s
-            this.a.mirrorX(1)
-            //this.a.addImage(zombie1R)
-        }else if (this.a.position.x <= this.x){
-            this.a.velocity.x = this.s
-            this.a.mirrorX(-1)
-            //this.a.addImage(zombie1)
+        if (!onTop){
+            if (player.position.x < this.a.position.x) {
+                this.a.velocity.x = -this.s
+                this.a.mirrorX(1)
+            }else if (player.position.x > this.a.position.x){
+                this.a.velocity.x = this.s
+                this.a.mirrorX(-1)
+            }
+        }else{
+            if (this.a.position.x > player.position.x + 100) {
+                this.a.velocity.x = -this.s
+                this.a.mirrorX(1)
+            }else if (this.a.position.x < player.position.x - 100){
+                this.a.velocity.x = this.s
+                this.a.mirrorX(-1)
+            }
         }
     }
 
@@ -190,6 +198,7 @@ class Key {
         if ((player.position.x >= this.x) && (player.position.x <= this.x + 50)) {
             if ((player.position.y + 55 >= this.y + 50) && (player.position.y - 45 <= this.y)) {
                 this.pick()
+                showKeyBool = false
                 // delete keys[keys.indexOf(this)]
             }
         }

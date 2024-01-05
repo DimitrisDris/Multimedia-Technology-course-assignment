@@ -52,11 +52,14 @@ function draw() {
 
         if (startGameBool) {
             // Displaying the score 
+            noStroke(0)
             image(zombieCounter, player.position.x - 40, 10)
             textSize(40)
             fill(200, 0, 0)
             textFont('Rubik Doodle Shadow')
             text(score, player.position.x + 60, 60)
+
+            displaySuperPower()
 
             //heart[i].position.x = camera.position.x - 550 + i*32
                 //heart[i].position.y = camera.position.y - 250
@@ -154,10 +157,7 @@ function draw() {
         }
         pop()
 
-        push()
-        keys.forEach((k) => k.drawKey());
-        keys.forEach((k) => k.checkContact());
-        pop()
+        
 
         push()
         gates.forEach((g) => g.drawGate());
@@ -236,6 +236,18 @@ function draw() {
         // -------------------- GAME LOGIC (ROUNDS) --------------------
 
         checkKillstreak()
+        push()
+        keys.forEach((k) => k.drawKey());
+        keys.forEach((k) => k.checkContact());
+        pop()
+        /*if (showKeyBool) {
+            push()
+            keys[currentRound-2].drawKey()
+            keys[currentRound-2].checkContact()
+            
+            pop()       
+        }*/
+        
 
         if (currentRound <= TOTAL_ROUNDS && !gates[currentRound-1].u  && 
             player.position.x > gates[currentRound-1].x - 600 ) {
@@ -244,10 +256,13 @@ function draw() {
                     console.log('currRound: '+currentRound+'cond: '+gates[currentRound-1].passedWaves)
                     currRoundStarted = true
                     startNewWave(currentRound) 
-                } else if(passedAllWaves) {
-                    passedAllWaves = false
-                }
-                
+
+                    /*if (zombies.length === 1 && currentWave + 2 === 3) {
+                        xk = zombies[0].a.position.x
+                        keys[currentRound - 1] = new Key(zombies[0].a.position.x, 450, false)
+                    }*/
+
+                } else if(passedAllWaves) passedAllWaves = false
                 
             }
             
@@ -262,10 +277,9 @@ function draw() {
 
         if (playForHighScore) {
             if (zombies.length === 0) {
-                setTimeout(function() { 
-                    startNewWave(currentRound);
-                }, 2000 )
-                //console.log(setTimeout(startNewWave, 2000, currentRound))
+                
+                startNewWave(currentRound);
+                
             }
         }
 
@@ -322,7 +336,7 @@ function draw() {
             //pop()
         }
 
-        if (keyIsDown(32) && startGameBool) {
+        if (showPlayerPosBool) {
             textFont('Arial')
             textSize(20)
     
@@ -333,20 +347,13 @@ function draw() {
             text('----------------', player.position.x + 30, player.position.y)
             text('|\n|\n|', player.position.x, player.position.y + 80)
         }
-        textFont('Arial')
-        textSize(20)
-
-        text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
-        text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
-        text('----------------', player.position.x - 130, player.position.y)
-        text('|\n|\n|', player.position.x, player.position.y - 150)
-        text('----------------', player.position.x + 30, player.position.y)
-        text('|\n|\n|', player.position.x, player.position.y + 80)
+        
         if (lifeCounter === 0) {
             //removeSprites(heart)
-            player.changeAnimation('Dead')
+            //player.changeAnimation('Dead')
+            player.changeAnimation('LaraDead')
             
-            if (player.getAnimationLabel() === 'Dead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
+            if (player.getAnimationLabel() === 'LaraDead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
             
         }
 
@@ -398,6 +405,23 @@ function keyPressed() {
 
     if (keyIsDown(87)) {
         playerJumpBool = true
+    }
+
+    if (keyIsDown(80)) showPlayerPosBool = !showPlayerPosBool
+
+    if (keyIsDown(32)) {
+       
+        console.log('olala')
+        
+        textSize(20)
+        textFont('Arial')
+        text(player.position.x + ' , ' + player.position.y, player.position.x - 100, 300)
+        text(player.velocity.x + ' , ' + player.velocity.y, player.position.x - 100, 330)
+        text('----------------', player.position.x - 130, player.position.y)
+        text('|\n|\n|', player.position.x, player.position.y - 150)
+        text('----------------', player.position.x + 30, player.position.y)
+        text('|\n|\n|', player.position.x, player.position.y + 80)
+        
     }
 
     if (!startGameBool && keyIsDown(32)) {

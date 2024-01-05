@@ -1,4 +1,5 @@
 var groundSprites
+var lavaGif
 var GRAVITY = 0.5
 var JUMP = -14
 var isGameOver
@@ -11,14 +12,17 @@ var currentLives
 var superPowerActiveBool
 var superPowerMeter
 var superPowerMeterFullBool
+var activateSuperpowerBool
 
 var minPlayAreaX
 var maxPlayAreaX
+var lastZombiePosX
 
 var currentRound 
 var TOTAL_ROUNDS
 var finishedAllRounds
 var playForHighScore
+var showKeyBool
 
 var currentWave
 var WAVES
@@ -55,7 +59,7 @@ let s = 40
 let playerSkin
 let playerSkinR
 
-
+var xk
 var drops = new Array()
 var dropCounter = 0
 
@@ -67,18 +71,26 @@ let playerRun
 let playerJump
 let playerShoot
 let playerDead
+let showPlayerPosBool
 
 let laraRun
 let laraStand
 let laraJump
 let laraAttack
+let laraDead
 
 let bulletImg
 let tombstoneImg
 let ground
 let arrowSignImg
 let skeletonImg
-let tree
+let treeImg
+let stopImg
+let bush1Img
+let bush2Img
+let deadBushImg
+let signImg
+let crossTombstoneImg
 
 let zombie1
 let zombie1R
@@ -205,10 +217,19 @@ function preload() {
         'assets/laracrop/attack5.png'
     )
 
-    ground = loadImage('assets/Tile (2).png')
-    tree = loadImage('assets/Tree.png')
-    skeletonImg = loadImage('assets/Skeleton.png')
-    arrowSignImg = loadImage('assets/ArrowSign.png')
+    laraDead = loadAnimation('assets/laracrop/dmg1.png',
+    'assets/laracrop/dmg2.png',
+    'assets/laracrop/dmg3.png',
+    'assets/laracrop/dmg4.png',
+    'assets/laracrop/dmg5.png',
+    'assets/laracrop/dmg6.png',
+    'assets/laracrop/dmg7.png',
+    'assets/laracrop/dmg8.png',
+    'assets/laracrop/dmg9.png',
+    'assets/laracrop/dmg10.png'
+)
+
+    
     //zombie1 = loadImage('assets/zombie1.png')
     zombie1R = loadImage('assets/zombie1R.png')
     backgroundImg = loadImage('assets/BG.png')
@@ -222,9 +243,20 @@ function preload() {
     openGate = loadImage('assets/openGate.png')
     key = loadImage('assets/key.png')
     bulletImg = loadImage('assets/Bullet.png')
+
+    ground = loadImage('assets/Tile (2).png')
+    treeImg = loadImage('assets/Tree.png')
+    skeletonImg = loadImage('assets/Skeleton.png')
+    arrowSignImg = loadImage('assets/ArrowSign.png')
     tombstoneImg = loadImage('assets/TombStone (1).png')
     settingsImg = loadImage('assets/settings.avif')
-    
+    stopImg = loadImage('assets/stop.png')
+    bush1Img = loadImage('assets/Bush1.png')
+    bush2Img = loadImage('assets/Bush (2).png')
+    deadBushImg = loadImage('assets/DeadBush.png')
+    signImg = loadImage('assets/Sign.png')
+    crossTombstoneImg = loadImage('assets/crossTombstone.png')
+    lavaGif = loadImage('assets/lava_00.gif')
 
     // Sounds 
 
@@ -246,10 +278,13 @@ function startGame() {
     startGameClock = millis()
 
     // -------------------- Game logic booleans --------------------
+    showPlayerPosBool = false
     passedAllWaves = false
     newWaveStart = false
     currRoundStarted = false
     finishedAllRounds = false
+    showKeyBool = false
+    activateSuperpowerBool = false
     // -------------------- --------------------  --------------------
 
     TOTAL_ROUNDS = 5
@@ -282,7 +317,7 @@ function startGame() {
         portals[i] = new Portal(300, 500, 1.2, tombstoneImg)    }
 
     for(let i = 0; i < TOTAL_ROUNDS;  i++) {
-        gates[i] = new Gate(1200*(i+1), 450, false)
+        gates[i] = new Gate(2000*(i+1), 450, false)
     }
 
         // Player sprite and animations 
@@ -296,6 +331,7 @@ function startGame() {
     player.addAnimation('LaraRun', laraRun)
     player.addAnimation('LaraJump', laraJump)
     player.addAnimation('LaraAttack', laraAttack)
+    player.addAnimation('LaraDead', laraDead)
     player.scale = 1.8
 
     createSettingsButton()
@@ -315,23 +351,111 @@ function startGame() {
     zombieCounter.resize(0, 70)
 
     for(let i = 0; i < TOTAL_ROUNDS;  i++) {
-        keys[i] = new Key(gates[i].x-200, 450, false)
+        keys[i] = new Key(gates[i].x-200, 460, false)
     }
 
 }
 
-function drawObjects() {
-    //image(tree, gates[1].x-700, 515-90, 120, 150)
+function createPlatforms() {
+    
+    platforms[0] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
+  
+    /*platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
+    platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 230, 20)
+    platforms[2] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
+    platforms[3] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 20)
+    platforms[4] = new Platform(gates[2].x - 820, player.position.y-110*1, 320, 20)
+    platforms[5] = new Platform(gates[3].x - 520, player.position.y-110*1, 320, 20)
+    platforms[6] = new Platform(gates[4].x - 520, player.position.y-110*2, 320, 20)*/
 }
 
-function createPlatforms() {
-    //platforms[i-1] = new Platform(1100*currentRound-500*i/1.25, player.position.y-130*i, 200, 20)
-    platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
-    platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 200, 20)
-    platforms[2] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 20)
-    platforms[3] = new Platform(gates[2].x - 520, player.position.y-110*1.8, 320, 20)
-    platforms[4] = new Platform(gates[3].x - 520, player.position.y-110*1.8, 320, 20)
-    platforms[5] = new Platform(gates[4].x - 520, player.position.y-110*1.8, 320, 20)
+function drawObjects() {
+
+    // --------------------- BEFORE ROUND 1 ---------------------
+    image(treeImg, -1000, 505-250, 230, 300)
+    image(deadBushImg, -1150, 505-30, 100, 80)
+    image(skeletonImg, -1015, 505+10, 80, 40)
+    image(deadBushImg, -865, 505-35, 100, 80)
+    image(stopImg, -620, 505-130, 120, 180)
+    // --------------------- END BEFORE ROUND 1 ---------------------
+
+    // --------------------- ROUND 1 ---------------------
+    let lavaY = 380
+    curve(300, 200, 30, 30, 30, 30, 30, 30)
+    image(lavaGif, gates[0].x - 1100, lavaY, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+1*20, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+2*20, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+3*20, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+4*20, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+5*20, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+6*20, 30, 40)
+    image(lavaGif, gates[0].x - 1100, lavaY+7*20, 30, 40)
+
+    image(arrowSignImg, gates[0].x-200, 505-30, 80, 80)
+    image(deadBushImg, gates[0].x-1650, 505-35, 100, 80)
+    image(signImg, gates[0].x-1490, 505-50, 80, 100)
+    image(treeImg, gates[0].x-1450, 515-320, 270, 370)
+    image(bush1Img, gates[0].x-1050, 505-5, 80, 50)
+    image(deadBushImg, gates[0].x-700, 505-35, 100, 80)
+    image(crossTombstoneImg, gates[0].x-730, 505-50, 70, 100)
+    image(treeImg, gates[0].x-700, 515-280, 230, 330)
+    image(skeletonImg, gates[0].x-480, 505+10, 80, 40)
+    // --------------------- END ROUND 1 ---------------------
+    
+    // --------------------- ROUND 2 --------------------- 
+    image(arrowSignImg, gates[1].x-200, 505-30, 80, 80)
+    image(deadBushImg, gates[1].x-1650, 505-35, 100, 80)
+    image(bush2Img, gates[1].x-1460, 505-5, 80, 50)
+    image(bush2Img, gates[1].x-1270, 505-5, 80, 50)
+    image(treeImg, gates[1].x-1450, 515-320, 270, 370)
+    image(bush1Img, gates[1].x-1050, 505-5, 80, 50)
+    image(deadBushImg, gates[1].x-700, 505-35, 100, 80)
+    image(crossTombstoneImg, gates[1].x-730, 505-50, 70, 100)
+    image(treeImg, gates[1].x-700, 515-280, 230, 330)
+    image(skeletonImg, gates[1].x-480, 505+10, 80, 40)
+    // --------------------- END ROUND 2 ---------------------
+
+    // --------------------- ROUND 3 --------------------- 
+    image(arrowSignImg, gates[2].x-200, 505-30, 80, 80)
+    image(deadBushImg, gates[2].x-1650, 505-35, 100, 80)
+    //image(bush2Img, gates[2].x-1460, 505-5, 80, 50)
+    image(bush2Img, gates[2].x-1270, 505-5, 80, 50)
+    image(treeImg, gates[2].x-1450, 515-300, 250, 350)
+    image(bush1Img, gates[2].x-1050, 505-5, 80, 50)
+    image(deadBushImg, gates[2].x-700, 505-35, 100, 80)
+    image(crossTombstoneImg, gates[2].x-730, 505-50, 70, 100)
+    image(treeImg, gates[2].x-700, 515-280, 230, 330)
+    image(skeletonImg, gates[2].x-480, 505+10, 80, 40)
+    // --------------------- END ROUND 3 ---------------------
+
+    // --------------------- ROUND 4 --------------------- 
+    image(arrowSignImg, gates[3].x-200, 505-30, 80, 80)
+    image(deadBushImg, gates[3].x-1650, 505-35, 100, 80)
+    image(bush2Img, gates[3].x-1460, 505-5, 80, 50)
+    image(bush2Img, gates[3].x-1270, 505-5, 80, 50)
+    image(treeImg, gates[3].x-1450, 515-320, 270, 370)
+    image(bush1Img, gates[3].x-1050, 505-5, 80, 50)
+    image(deadBushImg, gates[3].x-700, 505-35, 100, 80)
+    image(crossTombstoneImg, gates[3].x-730, 505-50, 70, 100)
+    image(treeImg, gates[3].x-700, 515-280, 230, 330)
+    image(skeletonImg, gates[3].x-480, 505+10, 80, 40)
+    // --------------------- END ROUND 4 ---------------------
+
+    // --------------------- ROUND 5 --------------------- 
+    image(arrowSignImg, gates[4].x-200, 505-30, 80, 80)
+    image(deadBushImg, gates[4].x-1650, 505-35, 100, 80)
+    image(bush2Img, gates[4].x-1460, 505-5, 80, 50)
+    image(bush2Img, gates[4].x-1270, 505-5, 80, 50)
+    image(treeImg, gates[4].x-1450, 515-320, 270, 370)
+    image(bush1Img, gates[4].x-1050, 505-5, 80, 50)
+    image(deadBushImg, gates[4].x-700, 505-35, 100, 80)
+    image(crossTombstoneImg, gates[4].x-730, 505-50, 70, 100)
+    image(treeImg, gates[4].x-700, 515-280, 230, 330)
+    image(skeletonImg, gates[4].x-480, 505+10, 80, 40)
+    // --------------------- END ROUND 5 ---------------------
+
+
+    
 }
 
 // ----------------------- SETTINGS FUNCTIONS -----------------------
@@ -351,10 +475,7 @@ function createSettingsButton() {
     settingsButton.position(buttonX, buttonY)
     settingsButton.size(30, 30)
     settingsButton.mousePressed(buttonPressed)
-    /*/settingsButton.style('position', 'absolute')
-    //imgButton.style('position', 'absolute');
-    settingsButton.style('left', buttonX + 'px');
-    settingsButton.style('top', buttonY + 'px');*/
+    
 }
 
 function buttonPressed() {
@@ -432,27 +553,37 @@ function instructionsDescription() {
     fill(255, 0, 0)
     textSize(30)
     textFont('Rubik Doodle Shadow')
-    text("Press D to move Right", camera.position.x - 177, Y + 2*45 )
+    text("Press 'D' to move Right", camera.position.x - 177, Y + 2*45 )
 
     fill(255, 0, 0)
     textSize(30)
     textFont('Rubik Doodle Shadow')
-    text("Press S to Shot", camera.position.x - 135, Y + 3*45 )
+    text("Press 'S' to Shot", camera.position.x - 135, Y + 3*45 )
 
     fill(255, 0, 0)
     textSize(30)
     textFont('Rubik Doodle Shadow')
-    text("Press Q to teleport when in front of graves", camera.position.x - 330, Y + 4*45 )
+    text("Press 'X' to Enable Superpower", camera.position.x - 245, Y + 4*45 )
 
     fill(255, 0, 0)
     textSize(30)
     textFont('Rubik Doodle Shadow')
-    text("Press I for Instructions", camera.position.x - 190, Y + 5*45 )
+    text("Press 'Q' to teleport when in front of graves", camera.position.x - 330, Y + 5*45 )
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press 'I' for Instructions", camera.position.x - 190, Y + 6*45 )
+
+    fill(255, 0, 0)
+    textSize(30)
+    textFont('Rubik Doodle Shadow')
+    text("Press 'P' to (un)show Player position", camera.position.x - 287.5, Y + 7*45 )
 
     fill(120, 255, 200)
     textSize(35)
     textFont('Rubik Doodle Shadow')
-    text("Press ESC to resume!", camera.position.x - 200, Y + 380 )
+    text("Press 'ESC' to resume!", camera.position.x - 200, Y + 390 )
 }
 
 function showSliders() {
@@ -477,6 +608,7 @@ function startNewWave(currRound) {
         newWaveStart = true
         if (currentWave === 4) {
             console.log('in')
+            showKeyBool = true
             currentWave = 1;
             passedAllWaves = true
     
@@ -490,7 +622,7 @@ function startNewWave(currRound) {
             currRoundStarted = false
         } else {
             if (!finishedAllRounds) {           
-                spawnZombies(1)
+                spawnZombies(1*currentWave)
                 currentWave++;
             }
             
@@ -498,7 +630,7 @@ function startNewWave(currRound) {
         }
     } else {
        // spawnZombies(1*currRound)
-        spawnZombies(1)
+        spawnZombies(1*currentWave)
     }
     
        
@@ -508,14 +640,9 @@ function startNewWave(currRound) {
 function spawnZombies(numZombies) {
     newWaveTime = millis()
 
-    let spawnArea = 500
-    let spawnX = player.position.x + random(-spawnArea / 2, spawnArea / 2)
-    let spawnY = player.position.y + random(-spawnArea / 2, spawnArea / 2)
     
     for(let i = 0; i < numZombies;  i++) {
-        let rand_x = Math.random() * ( (player.position.x + 500) - (player.position.x - 700) ) + (player.position.x - 500)
-        //ssslet rand_y = Math.random() * ( 515 - (player.position.y - 00) ) + (player.position.y - 200)
-        zombies[i] = new Zombie(rand_x, 515, 0.3, 5, 2, zombie1R, createSprite())
+        zombies[i] = new Zombie(player.position.x + getRandomNonZeroInRange(-350, 350), 515, 0.3, 5, 2, zombie1R, createSprite())
     }
 
 }
@@ -529,5 +656,42 @@ function checkKillstreak() {
 }
 
 function displaySuperPower() {
+    let rectX = camera.position.x + 437
+    let rectY = camera.position.y - 220
+    let rectWidth = 150
+    let rectHeight = 10
+    let borderWidth = 2
+
+    // Draw borders around the rectangle
+    stroke(0)
+    strokeWeight(borderWidth)
+
+    // Top border
+    line(rectX - borderWidth / 2, rectY - borderWidth / 2, rectX + rectWidth + borderWidth / 2, rectY - borderWidth / 2)
+    // Right border
+    line(rectX + rectWidth + borderWidth / 2, rectY - borderWidth / 2, rectX + rectWidth + borderWidth / 2, rectY + rectHeight + borderWidth / 2)
+    // Bottom border
+    line(rectX - borderWidth / 2, rectY + rectHeight + borderWidth / 2, rectX + rectWidth + borderWidth / 2, rectY + rectHeight + borderWidth / 2)
+    // Left border
+    line(rectX - borderWidth / 2, rectY - borderWidth / 2, rectX - borderWidth / 2, rectY + rectHeight + borderWidth / 2)
+
+    fill(255, 0, 0)
+    rect(rectX, rectY, min(killStreak*15, rectWidth), rectHeight);
+
+    fill(255, 0, 0)
+    textSize(16)
+    textFont('Rubik Doodle Shadow')
+    text("Superpower meter", camera.position.x + 436, camera.position.y - 185)
 
 }
+
+function getRandomNonZeroInRange(min, max) {
+    let randomNumber = 0;
+  
+    while (randomNumber === 0) {
+      randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+      console.log(randomNumber)
+    }
+  
+    return randomNumber;
+  }
