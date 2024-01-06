@@ -121,10 +121,16 @@ var keySound
 var grizzly
 var playGrizzlyBool
 
+var addLifeSound
+var addLifeSoundBool
+
 var superPowerSound
 
 var heartPickSound
 var heartPickSoundBool
+
+var teleportationSound
+var teleportationSoundBool
 
 var pistolShotSound
 var pistolShotBool // boolean for the sound file
@@ -283,7 +289,8 @@ function preload() {
     playerJumpSound = loadSound('sound/527524__jerimee__retro-super-jump.wav')
     openGateSound = loadSound('sound/683434__saha213131__door-open.mp3')
     superPowerSound = loadSound('sound/368651__jofae__game-powerup.mp3')
-    //playerFireSound = loadSound('sound/520279__hisoul__kali-fire-scream_1.wav')
+    teleportationSound = loadSound('sound/580062__pelicanicious__whoosh-pew.wav')
+    addLifeSound = loadSound('sound/563465__nicholasdaryl__itempickup.wav')
 }
 
 function startGame() {
@@ -373,9 +380,11 @@ function startGame() {
         keys[i] = new Key(gates[i].x-200, 460, false)
     }
 
+    createLavaPools()
+
     // for(let i = 0; i < 5;  i++) {
-        var l = new Lava(200, 550, 4)
-        lavaPools.push(l)
+        //var l = new Lava(200, 550, 4)
+        //lavaPools.push(l)
     // }
 
         
@@ -415,10 +424,16 @@ function createPlatforms() {
     platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
     platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 230, 20)
     platforms[2] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
-    platforms[3] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 20)
-    platforms[4] = new Platform(gates[2].x - 820, player.position.y-110*1, 320, 20)
-    platforms[5] = new Platform(gates[3].x - 520, player.position.y-110*1, 320, 20)
-    platforms[6] = new Platform(gates[4].x - 520, player.position.y-110*2, 320, 20)
+    platforms[3] = new Platform(gates[1].x - 1300, player.position.y-130*1., 200, 20)
+    platforms[4] = new Platform(gates[1].x - 920, player.position.y-110*2, 260, 20)
+    platforms[5] = new Platform(gates[1].x - 520, player.position.y-110*1, 180, 20)
+    platforms[6] = new Platform(gates[2].x - 1120, player.position.y-110*1.5, 150, 20)
+    platforms[7] = new Platform(gates[2].x - 720, player.position.y-110*2.5, 260, 20)
+}
+
+function createLavaPools() {
+    lavaPools[0] = new Lava(gates[1].x-1100, 550, 6)
+    lavaPools[1] = new Lava(gates[2].x-1160, 550, 9)
 }
 
 function drawObjects() {
@@ -451,14 +466,14 @@ function drawObjects() {
     image(bush2Img, gates[1].x-1460, 505-5, 80, 50)
     image(bush2Img, gates[1].x-1270, 505-5, 80, 50)
     image(treeImg, gates[1].x-1450, 515-320, 270, 370)
-    image(bush1Img, gates[1].x-1050, 505-5, 80, 50)
+    //image(bush1Img, gates[1].x-1050, 505-5, 80, 50)
     image(deadBushImg, gates[1].x-700, 505-35, 100, 80)
     image(crossTombstoneImg, gates[1].x-730, 505-50, 70, 100)
     image(treeImg, gates[1].x-700, 515-280, 230, 330)
     image(skeletonImg, gates[1].x-480, 505+10, 80, 40)
     // --------------------- END ROUND 2 ---------------------
 
-    // --------------------- ROUND 3 --------------------- 
+    // --------------------- ROUND 3 ---------------------  // tha mporousame na pai3oyme edw ena teleport sto psilo platform apo tin de3ia meria
     image(arrowSignImg, gates[2].x-200, 505-30, 80, 80)
     image(deadBushImg, gates[2].x-1650, 505-35, 100, 80)
     image(bush2Img, gates[2].x-1430, 505-5, 80, 50)
@@ -468,9 +483,10 @@ function drawObjects() {
     image(treeImg, gates[2].x-1070, 515-350, 300, 400)
     
     image(deadBushImg, gates[2].x-700, 505-35, 100, 80)
-    image(crossTombstoneImg, gates[2].x-730, 505-50, 70, 100)
+    //image(crossTombstoneImg, gates[2].x-730, 505-50, 70, 100)
     image(treeImg, gates[2].x-700, 515-280, 230, 330)
-    image(skeletonImg, gates[2].x-480, 505+10, 80, 40)
+    image(tombstoneImg, gates[2].x-480, 505-25, 80, 80)
+    image(deadBushImg, gates[2].x-390, 505-35, 100, 80)
     // --------------------- END ROUND 3 ---------------------
 
     // --------------------- ROUND 4 --------------------- 
@@ -511,9 +527,9 @@ function createSettingsButton() {
     SetButtonY = 23
     console.log('width: '+width)
     console.log('height: '+height)
-    //settingsButton = createButton('Settings')
+
     settingsButton = createImg('assets/settings.avif')
-    //settingsButton.position(player.position.x + 500, buttonY)
+
     settingsButton.position(SetButtonX, SetButtonY)
     settingsButton.size(30, 30)
     settingsButton.mousePressed(buttonPressed)
@@ -542,6 +558,9 @@ function createSliders() {
     audioSlider = createSlider(0, 1, 0.2, 0.01)
     audioSlider.position( audioSliderPosX, audioSliderPosY )
     audioSlider.input( () => {
+        addLifeSound.setVolume(audioSlider.value())
+        teleportationSound.setVolume(audioSlider.value())
+        superPowerSound.setVolume(audioSlider.value())
         grizzly.setVolume(audioSlider.value())
         keySound.setVolume(audioSlider.value())
         pistolShotSound.setVolume(audioSlider.value())
@@ -767,6 +786,22 @@ function getRandomNonZeroInRange(min, max) {
 
 function highScoreWave() {
 
+}
+
+function displayEndScreen() {
+    fill(255, 0, 0)
+    textAlign(CENTER)
+    
+    textFont('Rubik Doodle Shadow')
+    image(zombieCounter, camera.position.x-50, camera.position.y - 280)
+    zombieCounter.resize(120, 120)
+
+    textSize(55)
+    text('GAME OVER', camera.position.x, camera.position.y - 80)
+    textSize(35)
+    text('You killed: ' + score + ' zombies', camera.position.x, camera.position.y + 20)
+    
+    text('Refresh the page to restart!', camera.position.x, camera.position.y+210)
 }
 
 function endGame() {

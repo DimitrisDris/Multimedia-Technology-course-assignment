@@ -14,11 +14,9 @@ function draw() {
     if (GAME_STATE === 'END') {
         background(0)
         settingsButton.hide()
-        fill(255)
-        textAlign(CENTER)
-        textSize(18)
-        text('You killed ' + score + ' zombies : ', camera.position.x, camera.position.y - 20)
-        text('Game Over! Click anywhere to restart (or better just refresh the page)', camera.position.x, camera.position.y)
+        
+        displayEndScreen()
+
     } else if (GAME_STATE === 'SETTINGS') {
         background(0)
         settingsButton.hide()
@@ -174,6 +172,8 @@ function draw() {
 
         push()
         for(let i = 0; i < lifeCounter; i++) {
+            //addLifeSoundBool = true
+            
             heart[i].addImage(life)
         }
         pop()
@@ -200,6 +200,7 @@ function draw() {
         for (d of drops) {
             if (player.position.x + 5 > d.position.x && player.position.x - 5 < d.position.x) {
                 if (lifeCounter < 10) {
+                    addLifeSoundBool = true
                     lifeCounter++
                     d.remove()
                     drops.splice(drops.indexOf(d), 1)
@@ -270,10 +271,22 @@ function draw() {
 
         // -------------------- --------------------  --------------------
         
-        // -------------------- PLAYER ANIMATION HANDLING --------------------
+        // -------------------- PLAYER ANIMATION & SOUND HANDLING --------------------
 
         if (player.velocity.x == 0 && player.velocity.y == 0) {
             player.changeAnimation('LaraStand')
+        }
+
+        if (addLifeSoundBool && startGameBool) {
+            addLifeSound.rate(1.0)
+            addLifeSound.play()
+            addLifeSoundBool = false
+        }
+
+        if (keyIsDown(81) && teleportationSoundBool && startGameBool) {
+            teleportationSound.rate(1.0)
+            teleportationSound.play()
+            teleportationSoundBool = false; 
         }
 
         if (keyIsDown(83) && startGameBool) {
@@ -295,6 +308,16 @@ function draw() {
             // player.changeAnimation('Jump')
             player.changeAnimation('LaraJump')
         }
+        if ( (keyIsDown(68) || keyIsDown(65)) && player.velocity.y === 0 && startGameBool) {        // Run sound
+            if (!playerRunSound.isPlaying()) {
+                playerRunSound.rate(1.0)
+                playerRunSound.setVolume(0.1)
+                playerRunSound.play()
+            }
+        } else {
+            playerRunSound.stop()
+        }
+
         if (keyIsDown(68) && startGameBool) {
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
@@ -371,8 +394,10 @@ function keyPressed() {
     if (keyIsDown(80)) showPlayerPosBool = !showPlayerPosBool           // PRESSED P
     
     if (keyIsDown(81)) {                                // PRESSED Q
+        
         text(onPortal[0],player.position.x,300)
         if (onPortal[0]){
+            teleportationSoundBool = true
             player.position.x = onPortal[1]
         }
     }
@@ -415,6 +440,12 @@ function keyPressed() {
         
     }
 
+}
+
+function keyReleased() {
+    if ( (keyIsDown(68) || keyIsDown(65)) && startGameBool) {
+
+    }
 }
 
 function mouseClicked() {
