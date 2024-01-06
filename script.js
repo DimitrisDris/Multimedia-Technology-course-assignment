@@ -13,6 +13,7 @@ function draw() {
     
     if (GAME_STATE === 'END') {
         background(0)
+        settingsButton.hide()
         fill(255)
         textAlign(CENTER)
         textSize(18)
@@ -36,18 +37,7 @@ function draw() {
         drawObjects()
 
         if (!startGameBool) { 
-            stroke(0)              // To start game
-            fill(255, 0, 0)
-            textSize(35)
-            textAlign(CENTER)
-            textFont('Rubik Doodle Shadow')
-            text("Press SPACE To Start!", player.position.x, height/2 - 80) 
-
-            fill(255, 0, 0)
-            textSize(35)
-            textAlign(CENTER)
-            textFont('Rubik Doodle Shadow')
-            text("Press I For Instructions!", player.position.x, height/2 + 80) 
+            displayStartScreen()
         }
 
         if (startGameBool) {
@@ -69,10 +59,7 @@ function draw() {
             textFont('Rubik Doodle Shadow')
             text("Zombies alive: "+zombies.length, camera.position.x - 550, camera.position.y - 190)
 
-            fill(255, 0, 0)
-            textSize(25)
-            textFont('Rubik Doodle Shadow')
-            text("Killstreak : "+killStreak, camera.position.x + 430, camera.position.y - 240)
+            
 
             // Displaying the current round
             if (!playForHighScore) {
@@ -167,7 +154,6 @@ function draw() {
 
         push()
         gates.forEach((g) => g.drawGate());
-        //gates.forEach((g) => g.checkContact());
         gates.forEach((g) => {
             if (!g.u) g.checkContact()          // for the sound to be working properly
             else {}
@@ -227,10 +213,9 @@ function draw() {
             if (g.u) {
                 //openGateBool = true
                 if (openGateBool) {
-                    //openGateSound.setVolume(0.1)
                     openGateSound.rate(1.0)
                     openGateSound.play()
-                    g.resetSound()
+                    g.resetSound()              // Resets the global sound variable
                 }
                 
                 
@@ -277,10 +262,9 @@ function draw() {
         } 
 
         if (playForHighScore) {
-            if (zombies.length === 0) {
-                
+            if (zombies.length === 0 ) {
                 startNewWave(currentRound);
-                
+   
             }
         }
 
@@ -289,25 +273,20 @@ function draw() {
         // -------------------- PLAYER ANIMATION HANDLING --------------------
 
         if (player.velocity.x == 0 && player.velocity.y == 0) {
-            // player.changeAnimation('Idle')
             player.changeAnimation('LaraStand')
         }
 
         if (keyIsDown(83) && startGameBool) {
             if (pistolShotBool && startGameBool) {
-                //pistolShotSound.setVolume(0.1)
                 pistolShotSound.rate(1.0)
                 pistolShotSound.play()
                 pistolShotBool = false
             }
-            //playerFireSound.play()
-            // player.changeAnimation('Shoot')
             player.changeAnimation('LaraAttack')
         }
 
         if (keyIsDown(87) && startGameBool && (groundSprites.overlap(player) || onTop)) {
             if (playerJumpBool) {
-                //playerJumpSound.setVolume(0.1)
                 playerJumpSound.rate(1.0)
                 playerJumpSound.play()
                 playerJumpBool = false
@@ -353,10 +332,18 @@ function draw() {
             //removeSprites(heart)
             //player.changeAnimation('Dead')
             player.changeAnimation('LaraDead')
+            if (!playGrizzlyBool) {
+                grizzly.rate(1.0)
+                grizzly.play()
+                playGrizzlyBool = true
+            } else {
+                if (player.getAnimationLabel() === 'LaraDead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
+            }
             
-            if (player.getAnimationLabel() === 'LaraDead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
+            
             
         }
+
 
         // -------------------- -------------------- --------------------
 
@@ -371,15 +358,26 @@ function draw() {
 
 function keyPressed() {
 
+    if (!startGameBool && keyIsDown(32)) {                     // PRESSED SPACE 
+        startGameBool = true
+    }
+
+    if (finishedAllRounds && keyIsDown(69)) endGame()           // PRESSED E
+
+    if (keyIsDown(73)) {                        // PRESSED I
+        GAME_STATE = 'INSTRUCTIONS'
+    }
+
+    if (keyIsDown(80)) showPlayerPosBool = !showPlayerPosBool           // PRESSED P
     
-    if (keyIsDown(81)) {
+    if (keyIsDown(81)) {                                // PRESSED Q
         text(onPortal[0],player.position.x,300)
         if (onPortal[0]){
             player.position.x = onPortal[1]
         }
     }
 
-    if (keyIsDown(83) && startGameBool && !finishedAllRounds) {
+    if (keyIsDown(83) && startGameBool && !finishedAllRounds) {           //  PRESSED S
         pistolShotBool = true
         let bullet = {
             x: player.position.x + s,
@@ -387,6 +385,14 @@ function keyPressed() {
             s: s
         }
         bullets.push(bullet)
+        
+    }
+
+    if (keyIsDown(87)) playerJumpBool = true                // PRESSED W
+    
+
+    if (keyIsDown(88) && min(killStreak, 10)*15 === 150){           // PRESSED X
+        activateSuperpower()
     }
 
     if (keyIsDown(89) && finishedAllRounds) {           // PRESSED Y
@@ -399,33 +405,7 @@ function keyPressed() {
         finishedAllRounds = false
         playForHighScore = false
     }
-
-    if (keyIsDown(73)) {
-        GAME_STATE = 'INSTRUCTIONS'
-    }
-
-    if (keyIsDown(87)) {
-        playerJumpBool = true
-    }
-
-    if (keyIsDown(80)) showPlayerPosBool = !showPlayerPosBool
-
-    if (keyIsDown(32)) {
-        textSize(20)
-        textFont('Arial')
-        text('Player x: ' + player.position.x + ' , ' + 'Player y: ' + player.position.y, player.position.x - 100, 300)
-        text('Player Velocity x: ' + player.velocity.x + ' , ' + 'Player Velocity y: ' + player.velocity.y, player.position.x - 100, 330)
-        text('----------------', player.position.x - 130, player.position.y + 150)
-        text('|\n|\n|', player.position.x, player.position.y - 150)
-        text('----------------', player.position.x + 30, player.position.y)
-        text('|\n|\n|', player.position.x, player.position.y + 80)
-        
-    }
-
-    if (!startGameBool && keyIsDown(32)) {
-        startGameBool = true
-    }
-
+    
     if ( (GAME_STATE === 'SETTINGS' || GAME_STATE === 'INSTRUCTIONS') && keyCode === ESCAPE ) {
         GAME_STATE = 'PLAYING'
         settingsButton.show();
@@ -454,16 +434,14 @@ function mouseClicked() {
 
 }
 
-
-
-function endGame() {
-    //grizzly.play()
-    console.log(heart)
-    GAME_STATE = 'END'
-    isGameOver = true
-}
-
 function windowResized() {
-    
-
+    if (windowWidth < width) {
+        settingsButton.position(SetButtonX-115, SetButtonY)
+        musSlider.position(musSliderPosX-110, musSliderPosY)
+        audioSlider.position(audioSliderPosX-110, audioSliderPosY)
+    } else {
+        settingsButton.position(SetButtonX, SetButtonY)
+        musSlider.position(musSliderPosX, musSliderPosY)
+        audioSlider.position(audioSliderPosX, audioSliderPosY)
+    }
 }

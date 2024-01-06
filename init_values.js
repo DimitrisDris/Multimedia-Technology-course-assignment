@@ -30,6 +30,7 @@ var newWaveStart
 var newWaveTime
 var currWaveFinished
 var waveText
+var highScoreWaveBool
 
 var GAME_STATE
 var passedAllWaves
@@ -104,6 +105,7 @@ let gate
 let openGate
 let key
 var backgroundImg
+var teleportationPortalImg
 
 // Sounds
 var audioSlider
@@ -114,8 +116,15 @@ var musSlider
 var musSliderPosX
 var musSliderPosY
 var mus 
-var grizzly
 var keySound
+
+var grizzly
+var playGrizzlyBool
+
+var superPowerSound
+
+var heartPickSound
+var heartPickSoundBool
 
 var pistolShotSound
 var pistolShotBool // boolean for the sound file
@@ -131,6 +140,8 @@ var openGateBool // boolean for the open gate sound
 
 var settingsButton
 var settingsImg
+var SetButtonX
+var SetButtonY
 
 function preload() {
     // playerSkin = loadImage('assets/p-skin.png')
@@ -259,6 +270,7 @@ function preload() {
     deadBushImg = loadImage('assets/DeadBush.png')
     signImg = loadImage('assets/Sign.png')
     crossTombstoneImg = loadImage('assets/crossTombstone.png')
+    teleportationPortalImg = loadImage('assets/telep_portal.png')
     lavaGif = loadImage('assets/lava.gif')
 
     // Sounds 
@@ -270,6 +282,7 @@ function preload() {
     playerRunSound = loadSound('sound/422994__dkiller2204__sfxrunground3.wav')
     playerJumpSound = loadSound('sound/527524__jerimee__retro-super-jump.wav')
     openGateSound = loadSound('sound/683434__saha213131__door-open.mp3')
+    superPowerSound = loadSound('sound/368651__jofae__game-powerup.mp3')
     //playerFireSound = loadSound('sound/520279__hisoul__kali-fire-scream_1.wav')
 }
 
@@ -288,9 +301,11 @@ function startGame() {
     finishedAllRounds = false
     showKeyBool = false
     activateSuperpowerBool = false
+    highScoreWaveBool = false
+    playGrizzlyBool = false
     // -------------------- --------------------  --------------------
 
-    TOTAL_ROUNDS = 2
+    TOTAL_ROUNDS = 5
     score = 0
     player_dir = 1      // Player direction for mirroring
     currentRound = 1
@@ -309,25 +324,20 @@ function startGame() {
   
 
     for(let i = 0; i < 1;  i++) {
-        portals[i] = new Portal(300, 520, 500, 520, 1.2, tombstoneImg)    
+        portals[i] = new Portal(300, 505, 500, 497, 0.23, teleportationPortalImg)    
     }
 
     for(let i = 0; i < TOTAL_ROUNDS;  i++) {
         gates[i] = new Gate(2000*(i+1), 460, false)
     }
 
-
-
-
-
-
         // Player sprite and animations 
     player = createSprite(100, 515)
-    player.addAnimation('Idle', playerIdle)
+    /*player.addAnimation('Idle', playerIdle)
     player.addAnimation('Run', playerRun)
     player.addAnimation('Jump', playerJump)
     player.addAnimation('Shoot', playerShoot)
-    player.addAnimation('Dead', playerDead)
+    player.addAnimation('Dead', playerDead)*/
     player.addAnimation('LaraStand', laraStand)
     player.addAnimation('LaraRun', laraRun)
     player.addAnimation('LaraJump', laraJump)
@@ -356,7 +366,6 @@ function startGame() {
     life.resize(0, 30)
     nolife.resize(0, 30)
     
-   
 
     zombieCounter.resize(0, 70)
 
@@ -372,17 +381,44 @@ function startGame() {
         
 }
 
+function displayStartScreen() {
+    stroke(0)              // To start game
+    fill(255, 0, 0)
+    textSize(35)
+    textAlign(CENTER)
+    textFont('Rubik Doodle Shadow')
+    text("Press SPACE To Start!", player.position.x, height/2 - 100) 
+
+    fill(255, 0, 0)
+    textSize(35)
+    textAlign(CENTER)
+    textFont('Rubik Doodle Shadow')
+    text("Call Of Duty Zombies (The platform edition)", player.position.x, height/2 - 20) 
+
+    fill(255)
+    textSize(25)
+    textAlign(CENTER)
+    textFont('Rubik Doodle Shadow')
+    text("Created by Dimitris Drys, Giannis Mpoympalis, Giorgos Vlachos", player.position.x, height/2 + 75) 
+
+    fill(255, 0, 0)
+    textSize(35)
+    textAlign(CENTER)
+    textFont('Rubik Doodle Shadow')
+    text("Press I For Instructions!", player.position.x, height/2 + 140) 
+}
+
 function createPlatforms() {
     
     //platforms[0] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
   
     platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
     platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 230, 20)
-    /*platforms[2] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
+    platforms[2] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
     platforms[3] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 20)
     platforms[4] = new Platform(gates[2].x - 820, player.position.y-110*1, 320, 20)
     platforms[5] = new Platform(gates[3].x - 520, player.position.y-110*1, 320, 20)
-    platforms[6] = new Platform(gates[4].x - 520, player.position.y-110*2, 320, 20)*/
+    platforms[6] = new Platform(gates[4].x - 520, player.position.y-110*2, 320, 20)
 }
 
 function drawObjects() {
@@ -401,7 +437,7 @@ function drawObjects() {
     image(arrowSignImg, gates[0].x-200, 505-30, 80, 80)
     image(deadBushImg, gates[0].x-1650, 505-35, 100, 80)
     image(signImg, gates[0].x-1490, 505-50, 80, 100)
-    image(treeImg, gates[0].x-1450, 515-320, 270, 370)
+    image(treeImg, gates[0].x-1450, 515-320, 270+10, 370)
     image(bush1Img, gates[0].x-1050, 505-5, 80, 50)
     image(deadBushImg, gates[0].x-700, 505-35, 100, 80)
     image(crossTombstoneImg, gates[0].x-730, 505-50, 70, 100)
@@ -422,13 +458,15 @@ function drawObjects() {
     image(skeletonImg, gates[1].x-480, 505+10, 80, 40)
     // --------------------- END ROUND 2 ---------------------
 
-   /* // --------------------- ROUND 3 --------------------- 
+    // --------------------- ROUND 3 --------------------- 
     image(arrowSignImg, gates[2].x-200, 505-30, 80, 80)
     image(deadBushImg, gates[2].x-1650, 505-35, 100, 80)
-    //image(bush2Img, gates[2].x-1460, 505-5, 80, 50)
+    image(bush2Img, gates[2].x-1430, 505-5, 80, 50)
     image(bush2Img, gates[2].x-1270, 505-5, 80, 50)
     image(treeImg, gates[2].x-1450, 515-300, 250, 350)
     image(bush1Img, gates[2].x-1050, 505-5, 80, 50)
+    image(treeImg, gates[2].x-1070, 515-350, 300, 400)
+    
     image(deadBushImg, gates[2].x-700, 505-35, 100, 80)
     image(crossTombstoneImg, gates[2].x-730, 505-50, 70, 100)
     image(treeImg, gates[2].x-700, 515-280, 230, 330)
@@ -460,7 +498,7 @@ function drawObjects() {
     image(treeImg, gates[4].x-700, 515-280, 230, 330)
     image(skeletonImg, gates[4].x-480, 505+10, 80, 40)
     // --------------------- END ROUND 5 ---------------------
-*/
+
 
     
 }
@@ -468,18 +506,15 @@ function drawObjects() {
 // ----------------------- SETTINGS FUNCTIONS -----------------------
 
 function createSettingsButton() {
-    //let buttonX = constrain(1200, 1200, 1200)
 
-    //let buttonX = constrain(camera.position.x+600, camera.position.x+600, camera.position.x+600)
-    //let buttonY = constrain(camera.position.y+20, camera.position.y+20, camera.position.y+20)
-    let buttonX = 100
-    let buttonY = 630
+    SetButtonX = 1375
+    SetButtonY = 23
     console.log('width: '+width)
     console.log('height: '+height)
     //settingsButton = createButton('Settings')
     settingsButton = createImg('assets/settings.avif')
     //settingsButton.position(player.position.x + 500, buttonY)
-    settingsButton.position(buttonX, buttonY)
+    settingsButton.position(SetButtonX, SetButtonY)
     settingsButton.size(30, 30)
     settingsButton.mousePressed(buttonPressed)
     
@@ -492,9 +527,9 @@ function buttonPressed() {
 }
 
 function createSliders() {
-    musSliderPosX = (player.position.x + 100)
+    musSliderPosX = (width / 2)
     musSliderPosY = (height / 3.5) + 70
-    musSlider = createSlider(0, 1, 0.5, 0.01);           // Arguments: min, max, default, step
+    musSlider = createSlider(0, 1, 0.4, 0.01);           // Arguments: min, max, default, step
     musSlider.position( musSliderPosX, musSliderPosY );
     musSlider.input( () => {
         mus.setVolume(musSlider.value())
@@ -504,7 +539,7 @@ function createSliders() {
 
     audioSliderPosX = (width / 2)
     audioSliderPosY = (height / 2) + 120
-    audioSlider = createSlider(0, 1, 0.5, 0.01)
+    audioSlider = createSlider(0, 1, 0.2, 0.01)
     audioSlider.position( audioSliderPosX, audioSliderPosY )
     audioSlider.input( () => {
         grizzly.setVolume(audioSlider.value())
@@ -570,7 +605,7 @@ function instructionsDescription() {
     fill(255, 0, 0)
     textSize(30)
     textFont('Rubik Doodle Shadow')
-    text("Press 'X' to Enable Superpower", camera.position.x - 245, Y + 4*45 )
+    text("Press 'X' to Enable Superpower (15s of double damage)", camera.position.x - 400, Y + 4*45 )
 
     fill(255, 0, 0)
     textSize(30)
@@ -633,10 +668,9 @@ function startNewWave(currRound) {
                 currentWave++;
             }
             
-           // console.log('current round: '+ currentRound)
         }
     } else {
-       // spawnZombies(1*currRound)
+        //setTimeout(spawnZombies, 2000)
         spawnZombies(1*currentWave)
     }
     
@@ -645,28 +679,31 @@ function startNewWave(currRound) {
 
 
 function spawnZombies(numZombies) {
-    newWaveTime = millis()
-
     
+    newWaveTime = millis()
     for(let i = 0; i < numZombies;  i++) {
         let randNum = getRandomNonZeroInRange(-350, 350)
         if (randNum > gates[currentRound-1].x) randNum = gates[currentRound-1].x
         zombies[i] = new Zombie(player.position.x + randNum, 515, 0.3, 5, 2, zombie1R, createSprite())
     }
-
+ 
 }
 
 function checkKillstreak() {
     if (currentLives > lifeCounter) {           // Resets the killStreak if needed
         killStreak = 0
         currentLives = lifeCounter
-    }
-    
+    }  
 }
 
 function displaySuperPower() {
+    fill(255, 0, 0)
+    textSize(25)
+    textFont('Rubik Doodle Shadow')
+    text("Killstreak : "+killStreak, camera.position.x + 430, camera.position.y - 230)
+
     let rectX = camera.position.x + 437
-    let rectY = camera.position.y - 220
+    let rectY = camera.position.y - 210
     let rectWidth = 150
     let rectHeight = 10
     let borderWidth = 2
@@ -690,8 +727,30 @@ function displaySuperPower() {
     fill(255, 0, 0)
     textSize(16)
     textFont('Rubik Doodle Shadow')
-    text("Superpower meter", camera.position.x + 436, camera.position.y - 185)
+    text("Superpower meter", camera.position.x + 436, camera.position.y - 175)
 
+    if (superPowerActiveBool) {
+        fill(255)
+        textSize(16)
+        textFont('Rubik Doodle Shadow')
+        text("Superpower ACTIVE!", camera.position.x + 430, camera.position.y - 150)
+    }
+
+}
+
+function activateSuperpower() {
+    superPowerSound.rate(1.0)
+    superPowerSound.play()
+
+    superPowerActiveBool = true
+    killStreak -= 10
+
+
+    setTimeout(deactivateSuperPower, 15000)
+}
+
+function deactivateSuperPower() {
+    superPowerActiveBool = false
 }
 
 function getRandomNonZeroInRange(min, max) {
@@ -704,4 +763,15 @@ function getRandomNonZeroInRange(min, max) {
     }
 
     return randomNumber;
-  }
+}
+
+function highScoreWave() {
+
+}
+
+function endGame() {
+    //grizzly.play()
+    console.log(heart)
+    GAME_STATE = 'END'
+    isGameOver = true
+}

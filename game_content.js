@@ -122,7 +122,8 @@ class Zombie extends Character {
             if ((bullets[i].y >= this.a.position.y - 30) && (bullets[i].y <= this.a.position.y + 30)) {
                 if ((bullets[i].x >= this.a.position.x - 30) && (bullets[i].x <= this.a.position.x + 30)) {
                     bullets.pop(bullets[i])
-                    this.l -= 1
+                    if (!superPowerActiveBool) this.l -= 1
+                    else this.l-= 2
                     this.isDead()
                 }
             }
@@ -130,7 +131,7 @@ class Zombie extends Character {
     }
 
     isDead() {
-        if (this.l === 0) {
+        if (this.l <= 0) {
             let zomb_pos_x = this.a.position.x
             let zomb_pos_y = this.a.position.y
 
@@ -145,7 +146,7 @@ class Zombie extends Character {
             zombies.splice(index, 1)
             //console.log(zombies.length)
             score++
-            killStreak++
+            if (!superPowerActiveBool) killStreak++         // Only add to killstreak when the superpower is not activated
         }
     }
 
@@ -290,6 +291,7 @@ class Portal {
         this.firstPortalSprite.scale = scale
 
         this.secondPortalSprite.addImage(image)
+        this.secondPortalSprite.mirrorX(-1)
         this.secondPortalSprite.scale = scale
                
     }
