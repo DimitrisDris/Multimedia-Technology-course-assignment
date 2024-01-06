@@ -290,7 +290,7 @@ function startGame() {
     activateSuperpowerBool = false
     // -------------------- --------------------  --------------------
 
-    TOTAL_ROUNDS = 5
+    TOTAL_ROUNDS = 2
     score = 0
     player_dir = 1      // Player direction for mirroring
     currentRound = 1
@@ -374,11 +374,11 @@ function startGame() {
 
 function createPlatforms() {
     
-    platforms[0] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
+    //platforms[0] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
   
-    /*platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
+    platforms[0] = new Platform(gates[0].x - 500, player.position.y-130*1, 200, 20)
     platforms[1] = new Platform(gates[0].x - 900, player.position.y-130*2, 230, 20)
-    platforms[2] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
+    /*platforms[2] = new Platform(gates[0].x - 1200, player.position.y-130*1, 180, 20)
     platforms[3] = new Platform(gates[1].x - 600, player.position.y-130*1.5, 320, 20)
     platforms[4] = new Platform(gates[2].x - 820, player.position.y-110*1, 320, 20)
     platforms[5] = new Platform(gates[3].x - 520, player.position.y-110*1, 320, 20)
@@ -396,16 +396,7 @@ function drawObjects() {
     // --------------------- END BEFORE ROUND 1 ---------------------
 
     // --------------------- ROUND 1 ---------------------
-    let lavaY = 380
-    curve(300, 200, 30, 30, 30, 30, 30, 30)
-    image(lavaGif, gates[0].x - 1100, lavaY, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+1*20, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+2*20, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+3*20, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+4*20, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+5*20, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+6*20, 30, 40)
-    image(lavaGif, gates[0].x - 1100, lavaY+7*20, 30, 40)
+    
 
     image(arrowSignImg, gates[0].x-200, 505-30, 80, 80)
     image(deadBushImg, gates[0].x-1650, 505-35, 100, 80)
@@ -431,7 +422,7 @@ function drawObjects() {
     image(skeletonImg, gates[1].x-480, 505+10, 80, 40)
     // --------------------- END ROUND 2 ---------------------
 
-    // --------------------- ROUND 3 --------------------- 
+   /* // --------------------- ROUND 3 --------------------- 
     image(arrowSignImg, gates[2].x-200, 505-30, 80, 80)
     image(deadBushImg, gates[2].x-1650, 505-35, 100, 80)
     //image(bush2Img, gates[2].x-1460, 505-5, 80, 50)
@@ -469,7 +460,7 @@ function drawObjects() {
     image(treeImg, gates[4].x-700, 515-280, 230, 330)
     image(skeletonImg, gates[4].x-480, 505+10, 80, 40)
     // --------------------- END ROUND 5 ---------------------
-
+*/
 
     
 }
@@ -658,7 +649,9 @@ function spawnZombies(numZombies) {
 
     
     for(let i = 0; i < numZombies;  i++) {
-        zombies[i] = new Zombie(player.position.x + getRandomNonZeroInRange(-350, 350), 515, 0.3, 5, 2, zombie1R, createSprite())
+        let randNum = getRandomNonZeroInRange(-350, 350)
+        if (randNum > gates[currentRound-1].x) randNum = gates[currentRound-1].x
+        zombies[i] = new Zombie(player.position.x + randNum, 515, 0.3, 5, 2, zombie1R, createSprite())
     }
 
 }
@@ -703,11 +696,12 @@ function displaySuperPower() {
 
 function getRandomNonZeroInRange(min, max) {
     let randomNumber = 0;
-  
+
+    // Keep generating a random number until it is non-zero
     while (randomNumber === 0) {
-      randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-      console.log(randomNumber)
+        let randomSign = (Math.random() > 0.5) ? 1 : -1;
+        randomNumber = randomSign * (Math.floor(Math.random() * 200) + 350);
     }
-  
+
     return randomNumber;
   }

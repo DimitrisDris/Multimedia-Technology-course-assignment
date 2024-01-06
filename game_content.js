@@ -372,7 +372,7 @@ class Lava {
     }
 
     checkContact() {
-        if (player.position.x >= this.x && player.position.x <= this.x + this.w*50) {
+        if (player.position.x >= this.x && player.position.x <= this.x + this.w*50 - 20) {
             if (player.position.y + 45 === this.y) {
                 player.velocity.x = 1
                 player.position.y += 55

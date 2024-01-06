@@ -246,40 +246,35 @@ function draw() {
         keys.forEach((k) => k.drawKey());
         keys.forEach((k) => k.checkContact());
         pop()
-        /*if (showKeyBool) {
-            push()
-            keys[currentRound-2].drawKey()
-            keys[currentRound-2].checkContact()
-            
-            pop()       
-        }*/
-        
 
         if (currentRound <= TOTAL_ROUNDS && !gates[currentRound-1].u  && 
-            player.position.x > gates[currentRound-1].x - 600 ) {
+            player.position.x > gates[currentRound-1].x - 600 && !finishedAllRounds ) {
                 
                 if (!passedAllWaves && zombies.length === 0){
                     console.log('currRound: '+currentRound+'cond: '+gates[currentRound-1].passedWaves)
                     currRoundStarted = true
                     startNewWave(currentRound) 
 
-                    /*if (zombies.length === 1 && currentWave + 2 === 3) {
-                        xk = zombies[0].a.position.x
-                        keys[currentRound - 1] = new Key(zombies[0].a.position.x, 450, false)
-                    }*/
-
-                } else if(passedAllWaves) passedAllWaves = false
+                } else if(passedAllWaves) {
+                    console.log('riund: '+currentRound)
+                    passedAllWaves = false
+                    //if (currentRound === TOTAL_ROUNDS && gates[currentRound-1].u) finishedAllRounds = true
+                }
                 
             }
+
+        console.log('rund: '+currentRound)    
+        
+        if (finishedAllRounds && gates[TOTAL_ROUNDS-1].u) {
             
-        if (finishedAllRounds) {
             
-            fill(255, 0, 0)
-            textSize(32)
-            textAlign(CENTER)
-            textFont('Rubik Doodle Shadow')
-            text("Press Y To Play For High Score or E To End The Game!", player.position.x, height/2 ) 
-        }
+                fill(255, 0, 0)
+                textSize(32)
+                textAlign(CENTER)
+                textFont('Rubik Doodle Shadow')
+                text("Press Y To Play For High Score or E To End The Game!", player.position.x, height/2 ) 
+            
+        } 
 
         if (playForHighScore) {
             if (zombies.length === 0) {
@@ -298,7 +293,7 @@ function draw() {
             player.changeAnimation('LaraStand')
         }
 
-        if (keyIsDown(83) && startGameBool && !finishedAllRounds) {
+        if (keyIsDown(83) && startGameBool) {
             if (pistolShotBool && startGameBool) {
                 //pistolShotSound.setVolume(0.1)
                 pistolShotSound.rate(1.0)
@@ -310,7 +305,7 @@ function draw() {
             player.changeAnimation('LaraAttack')
         }
 
-        if (keyIsDown(87) && startGameBool && !finishedAllRounds && (groundSprites.overlap(player) || onTop)) {
+        if (keyIsDown(87) && startGameBool && (groundSprites.overlap(player) || onTop)) {
             if (playerJumpBool) {
                 //playerJumpSound.setVolume(0.1)
                 playerJumpSound.rate(1.0)
@@ -321,7 +316,7 @@ function draw() {
             // player.changeAnimation('Jump')
             player.changeAnimation('LaraJump')
         }
-        if (keyIsDown(68) && startGameBool && !finishedAllRounds) {
+        if (keyIsDown(68) && startGameBool) {
             player.position.x = player.position.x + 5
             camera.position.x = player.position.x + 5
             
@@ -332,7 +327,7 @@ function draw() {
             player.changeAnimation('LaraRun')
             
         }
-        if (keyIsDown(65) && startGameBool && !finishedAllRounds) {
+        if (keyIsDown(65) && startGameBool) {
             player.position.x = player.position.x - 5
             camera.position.x = player.position.x - 5
             s = -40
