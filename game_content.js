@@ -135,7 +135,7 @@ class Zombie extends Character {
             let zomb_pos_x = this.a.position.x
             let zomb_pos_y = this.a.position.y
 
-            if (Math.random() >= 0) {
+            if (Math.random() >= 0.6) {
                 drops[dropCounter] = createSprite(zomb_pos_x, zomb_pos_y)
                 drops[dropCounter].addImage(life)
                 dropCounter++;
@@ -190,7 +190,7 @@ class Key {
     }
     
     drawKey() {
-        if(!this.p) {
+        if(!this.p && passedAllWaves) {
             image(key, this.x, this.y)
             key.resize(0, 70)
 
@@ -215,6 +215,7 @@ class Key {
     pick() {
         if (!this.p) keySound.play()
         this.p = true
+        passedAllWaves = false
         
     }
 

@@ -239,12 +239,13 @@ function draw() {
                 if (!passedAllWaves && zombies.length === 0){
                     console.log('currRound: '+currentRound+'cond: '+gates[currentRound-1].passedWaves)
                     currRoundStarted = true
-                    startNewWave(currentRound) 
+                    startNewWave() 
 
                 } else if(passedAllWaves) {
+                    //keys[currentRound-2].drawKey()
+                    //keys[currentRound-2].checkContact()
                     console.log('riund: '+currentRound)
-                    passedAllWaves = false
-                    //if (currentRound === TOTAL_ROUNDS && gates[currentRound-1].u) finishedAllRounds = true
+                    //passedAllWaves = false
                 }
                 
             }
@@ -264,7 +265,7 @@ function draw() {
 
         if (playForHighScore) {
             if (zombies.length === 0 ) {
-                startNewWave(currentRound);
+                startNewWave();
    
             }
         }
@@ -305,17 +306,7 @@ function draw() {
                 playerJumpBool = false
             }
             player.velocity.y = JUMP
-            // player.changeAnimation('Jump')
             player.changeAnimation('LaraJump')
-        }
-        if ( (keyIsDown(68) || keyIsDown(65)) && player.velocity.y === 0 && startGameBool) {        // Run sound
-            if (!playerRunSound.isPlaying()) {
-                playerRunSound.rate(1.0)
-                playerRunSound.setVolume(0.1)
-                playerRunSound.play()
-            }
-        } else {
-            playerRunSound.stop()
         }
 
         if (keyIsDown(68) && startGameBool) {
@@ -325,7 +316,6 @@ function draw() {
 
             s = 40
             player.mirrorX(1)
-            // player.changeAnimation('Run')
             player.changeAnimation('LaraRun')
             
         }
@@ -334,9 +324,7 @@ function draw() {
             camera.position.x = player.position.x - 5
             s = -40
             player.mirrorX(-1)
-            // player.changeAnimation('Run')        
             player.changeAnimation('LaraRun')   
-            //pop()
         }
 
         if (showPlayerPosBool) {
@@ -352,8 +340,6 @@ function draw() {
         }
         
         if (lifeCounter === 0) {
-            //removeSprites(heart)
-            //player.changeAnimation('Dead')
             player.changeAnimation('LaraDead')
             if (!playGrizzlyBool) {
                 grizzly.rate(1.0)
@@ -362,8 +348,6 @@ function draw() {
             } else {
                 if (player.getAnimationLabel() === 'LaraDead' && player.animation.getFrame() === player.animation.getLastFrame()) endGame()
             }
-            
-            
             
         }
 
@@ -440,12 +424,6 @@ function keyPressed() {
         
     }
 
-}
-
-function keyReleased() {
-    if ( (keyIsDown(68) || keyIsDown(65)) && startGameBool) {
-
-    }
 }
 
 function mouseClicked() {
