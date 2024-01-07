@@ -1,11 +1,31 @@
 html, body {
     margin: 0;
     padding: 0;
-    background-color: rgb(60, 60, 60)
+    background-image: url('assets/vintage-wallpaper.jpg');
 }
 
 canvas {
     display: block;
 
     margin: 1% auto;
+}
+
+.infos {
+    position: absolute;
+    top: 800px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin: auto 10%;
+    color: rgb(208, 0, 0);
+}
+
+.infos h1 {
+    margin-bottom: 5%;
+    font-size: 2.2rem;
+}
+
+.infos p {
+    margin-bottom: 10%;
+    font-size: 1.2rem;
 }

@@ -17,6 +17,10 @@ function draw() {
         
         displayEndScreen()
 
+        if (keyIsDown(82)) {
+            location.reload();
+        }
+
     } else if (GAME_STATE === 'SETTINGS') {
         background(0)
         settingsButton.hide()
@@ -384,7 +388,7 @@ function draw() {
 
 function keyPressed() {
 
-    if (!startGameBool && keyIsDown(32)) {                     // PRESSED SPACE 
+    if (!startGameBool && keyIsDown(82)) {                     // PRESSED R
         startGameBool = true
     }
 
@@ -441,6 +445,8 @@ function keyPressed() {
         loop()
         
     }
+
+
 
 }
 

@@ -358,7 +358,7 @@ function displayStartScreen() {
     textSize(35)
     textAlign(CENTER)
     textFont('Rubik Doodle Shadow')
-    text("Press SPACE To Start!", player.position.x, height/2 - 100) 
+    text("Press R To Start!", player.position.x, height/2 - 100) 
 
     fill(255, 0, 0)
     textSize(35)
@@ -786,7 +786,7 @@ function displayEndScreen() {
     textSize(35)
     text('You killed: ' + score + ' zombies', camera.position.x, camera.position.y + 20)
     
-    text('Refresh the page to restart!', camera.position.x, camera.position.y+210)
+    text('Press R to restart!', camera.position.x, camera.position.y+210)
 }
 
 function endGame() {
