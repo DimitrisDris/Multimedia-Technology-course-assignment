@@ -4,7 +4,7 @@ function setup() {
     background(255, 255, 255)
     createCanvas(1300, 600)
 
-    // mus.play()
+    mus.play()
 
     startGame()
 }
@@ -78,7 +78,8 @@ function draw() {
                 fill(255, 0, 0)
                 textSize(50)
                 textFont('Rubik Doodle Shadow')
-                text("Wave "+(currentWave-1), player.position.x - 90, 230) 
+                if (currentWave-1 === 0) text("Wave 1", player.position.x - 90, 230) 
+                else text("Wave "+(currentWave-1), player.position.x - 90, 230) 
                 
                 if (millis() - newWaveTime > 2000) {
                     waveText = false
@@ -164,7 +165,7 @@ function draw() {
         pop()
 
         push()
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             heart[i].position.x = camera.position.x - 550 + i*32
             heart[i].position.y = camera.position.y - 250
         }  
@@ -179,7 +180,7 @@ function draw() {
         pop()
         
         push()
-        for (let i = lifeCounter; i < 10; i++) {
+        for (let i = lifeCounter; i < 5; i++) {
             heart[i].addImage(nolife);
             
         }
@@ -199,12 +200,15 @@ function draw() {
         push()
         for (d of drops) {
             if (player.position.x + 5 > d.position.x && player.position.x - 5 < d.position.x) {
-                if (lifeCounter < 10) {
-                    addLifeSoundBool = true
-                    lifeCounter++
-                    d.remove()
-                    drops.splice(drops.indexOf(d), 1)
-                    dropCounter--
+                if (player.position.y + 50 > d.position.y && player.position.y - 50 < d.position.y) {
+                    
+                    if (lifeCounter < 5) {
+                        addLifeSoundBool = true
+                        lifeCounter++
+                        d.remove()
+                        drops.splice(drops.indexOf(d), 1)
+                        dropCounter--
+                    }
                 }
             }
         }
@@ -226,31 +230,32 @@ function draw() {
         // -------------------- -------------------- --------------------
 
         // -------------------- GAME LOGIC (ROUNDS) --------------------
-
+        
         checkKillstreak()
         push()
-        keys.forEach((k) => k.drawKey());
-        keys.forEach((k) => k.checkContact());
+        if (passedAllWaves) {
+            keys.forEach((k) => k.drawKey());
+            keys.forEach((k) => k.checkContact());
+        }
+        
         pop()
 
         if (currentRound <= TOTAL_ROUNDS && !gates[currentRound-1].u  && 
             player.position.x > gates[currentRound-1].x - 600 && !finishedAllRounds ) {
                 
                 if (!passedAllWaves && zombies.length === 0){
-                    console.log('currRound: '+currentRound+'cond: '+gates[currentRound-1].passedWaves)
                     currRoundStarted = true
                     startNewWave() 
 
                 } else if(passedAllWaves) {
                     //keys[currentRound-2].drawKey()
                     //keys[currentRound-2].checkContact()
-                    console.log('riund: '+currentRound)
+
                     //passedAllWaves = false
                 }
                 
             }
 
-        console.log('rund: '+currentRound)    
         
         if (finishedAllRounds && gates[TOTAL_ROUNDS-1].u) {
             
@@ -274,6 +279,19 @@ function draw() {
         
         // -------------------- PLAYER ANIMATION & SOUND HANDLING --------------------
 
+        if (endRoundSoundBool) {
+            endRoundSound.rate(1.0)
+            endRoundSound.play()
+            endRoundSoundBool = false
+        }
+
+        if (hitSoundBool) {
+            hitSound.rate(1.0)
+            hitSound.play()
+            hitSound.setVolume(0.2)
+            hitSoundBool = false
+        }
+
         if (player.velocity.x == 0 && player.velocity.y == 0) {
             player.changeAnimation('LaraStand')
         }
@@ -293,6 +311,7 @@ function draw() {
         if (keyIsDown(83) && startGameBool) {
             if (pistolShotBool && startGameBool) {
                 pistolShotSound.rate(1.0)
+                pistolShotSound.setVolume(0.1)
                 pistolShotSound.play()
                 pistolShotBool = false
             }
@@ -378,11 +397,10 @@ function keyPressed() {
     if (keyIsDown(80)) showPlayerPosBool = !showPlayerPosBool           // PRESSED P
     
     if (keyIsDown(81)) {                                // PRESSED Q
-        
-        text(onPortal[0],player.position.x,300)
         if (onPortal[0]){
             teleportationSoundBool = true
             player.position.x = onPortal[1]
+            player.position.y = onPortal[2]
         }
     }
 
@@ -422,23 +440,6 @@ function keyPressed() {
         // Unfreezes game
         loop()
         
-    }
-
-}
-
-function mouseClicked() {
-    if (isGameOver) {
-        isGameOver = false
-
-        player.position.x = 100
-        player.position.y = height - 75
-        
-        score = 0       
-        
-        lifeCounter = 10
-        for(let i = 0; i < 10; i++) {
-            heart[i].addImage(life)
-        }
     }
 
 }

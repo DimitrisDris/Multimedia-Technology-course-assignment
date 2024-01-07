@@ -5,71 +5,47 @@ class Platform {
         this.y = y;
         this.w = w;
         this.h = h;
-        //this.drawPlatform();
     }
 
     drawPlatform() {
-        //fill(77, 64, 44);
         fill(40, 40, 40);
         rect(this.x, this.y, this.w, this.h, 8);
     }
 
     checkContact() {
-        textFont('Arial')
-        textSize(24)
 
         if ((player.position.x >= this.x) && (player.position.x <= this.x + this.w)) { // If player is in platform's width
             if ((Math.ceil((player.position.y + 45) / 5) * 5 >= this.y) && (Math.ceil((player.position.y + 45) / 5) * 5 <= this.y + 5)) { // If player is on top of the platform
                 player.position.y = this.y - 45
                 player.velocity.y = 0
-                console.log('AAA')
 
             }else if ((player.position.y + 45 >= this.y + this.h) && (player.position.y - 24 <= this.y)) { // If platform is between player's head and feet
                 if (player.position.x - 20 <= this.x) { // If player is on the platform's left end
                     player.position.x = this.x - 20
-                    console.log('BBB1')
                 }else if (player.position.x + 20 >= this.x + this.w) { // If player is on the platform's right end
                     player.position.x = this.x + this.w + 20
-                    console.log('BBB2')
                 }
-            }else if (Math.ceil((player.position.y - 24) / 5) * 5 === this.y + this.h) { // If player is beneath the platform
-                player.position.y = this.y + this.h + 55
-                player.velocity.y = 0
-                console.log('CCC')
             }
+            // else if (Math.ceil((player.position.y - 24) / 5) * 5 === this.y + this.h) { // If player is beneath the platform
+            //     player.position.y = this.y + this.h + 55
+            //     player.velocity.y = 0
+            // }
         }
-        // text('AAAAAAA1',this.x , this.y)
-        // text('AAAAAAA2',this.x + 200, this.y + this.h)
-        // text('XXXXXXX1',player.position.x, player.position.y - 50)
-        // text('XXXXXXX2',player.position.x, player.position.y + 50)
-
     }
-
 }
 
-class Character {
+class Zombie {
 
-    constructor(x, y, scale, a) {
+    constructor(x, y, scale, lives, speed, image, a) {
         this.x = x;
         this.y = y;
         this.a = a;
         this.a.position.x = this.x
         this.a.position.y = this.y
         this.a.scale = scale
-               
-    }
-
-}
-
-class Zombie extends Character {
-
-    constructor(x, y, scale, lives, speed, image, a) {             // Dry thelw e3igisi gia to resize 
-        super(x, y, scale, a)
         this.l = lives;
         this.s = speed;
         this.a.addImage(image)
-       
-        //image.resize(0. 80)
     }
 
 
@@ -91,6 +67,7 @@ class Zombie extends Character {
                 if (lifeCounter > 0 && zombieAttackTime1 > zombieAttackTime2 + 500) {
                     zombieAttackTime2 = performance.now()
                     lifeCounter--
+                    hitSoundBool = true
                 }
                 
             }
@@ -135,7 +112,7 @@ class Zombie extends Character {
             let zomb_pos_x = this.a.position.x
             let zomb_pos_y = this.a.position.y
 
-            if (Math.random() >= 0.6) {
+            if (Math.random() >= 0.8) {
                 drops[dropCounter] = createSprite(zomb_pos_x, zomb_pos_y)
                 drops[dropCounter].addImage(life)
                 dropCounter++;
@@ -144,39 +121,9 @@ class Zombie extends Character {
             let index = zombies.indexOf(this)
             this.a.remove()
             zombies.splice(index, 1)
-            //console.log(zombies.length)
             score++
             if (!superPowerActiveBool) killStreak++         // Only add to killstreak when the superpower is not activated
         }
-    }
-
-}
-
-class Player extends Character {
-
-    constructor(x, y, scale, start_direction, a) {
-        super(x, y, scale, a)
-        this.dir = start_direction
-        player.addAnimation('Idle', playerIdle)
-        player.addAnimation('Run', playerRun)
-        player.addAnimation('Jump', playerJump)
-        player.addAnimation('Shoot', playerShoot)
-    }
-
-    idle() {
-        player.changeAnimation('Idle')
-    }
-
-    run() {
-        player.changeAnimation('Run')
-    }
-
-    jump() {
-        player.changeAnimation('Jump')
-    }
-
-    shoot() {
-        player.changeAnimation('Shoot')
     }
 
 }
@@ -190,13 +137,9 @@ class Key {
     }
     
     drawKey() {
-        if(!this.p && passedAllWaves) {
+        if(!this.p ) {          // && passedAllWaves
             image(key, this.x, this.y)
             key.resize(0, 70)
-
-            // noStroke();
-            // noFill()
-            // rect(this.x + 10, this.y + 10, 50)
         }
     }
 
@@ -223,24 +166,34 @@ class Key {
 
 class Gate {
 
-    constructor(x, y, u) {
+    constructor(x, y, u, lastBool) {
         this.x = x;
         this.y = y;
         this.u = u;
+        this.lastBool = lastBool
     }
 
     drawGate() {
         if(!this.u) {
-            image(gate, this.x, this.y - 200)
-            gate.resize(0, 300)
+            if(this.lastBool) {
+                finishGate.resize(0, 300)
+                image(finishGate, this.x, this.y - 200)
+            }else{
+                gate.resize(0, 300)
+                image(gate, this.x, this.y - 200)
+            }
 
-            // rect(this.x + 90, this.y - 160, 140, 250)
+
         }else{
-            openGate.resize(0, 300)
-            image(openGate, this.x, this.y - 200)
+            if(this.lastBool) {
+                finishGateOpen.resize(0, 300)
+                image(finishGateOpen, this.x, this.y - 200)
+            }else{
+                openGate.resize(0, 300)
+                image(openGate, this.x, this.y - 200)
+            }
+
         }
-        // noStroke();
-        // noFill()
     }
 
     checkContact() {
@@ -297,22 +250,17 @@ class Portal {
                
     }
 
-    /*
-    drawPortal() {
-        drawSprites()
-    }*/
-
     checkContact() {
         if ((player.position.x < this.x1 + 50) && (player.position.x > this.x1 - 50)) {
             if ((player.position.y < this.y1 + 50) && (player.position.y > this.y1 - 50)) {
-                return [true, this.x2]
+                return [true, this.x2, this.y2 - 50]
             }else{
                 return [false]
             }
             
         }else if ((player.position.x < this.x2 + 50) && (player.position.x > this.x2 - 50)) {
             if ((player.position.y < this.y2 + 50) && (player.position.y > this.y2 - 50)) {
-                return [true, this.x1]
+                return [true, this.x1, this.y1 - 50]
             }else{
                 return [false]
             }
@@ -362,7 +310,6 @@ class Button {
 
 class Lava {
 
-
     constructor(x, y, w) { // x, y is the upper left corver of the lava block and w is the length (how many ground blocks lava will be)
         this.x = x;
         this.y = y;
@@ -375,7 +322,7 @@ class Lava {
     }
 
     checkContact() {
-        if (player.position.x >= this.x && player.position.x <= this.x + this.w*50 - 20) {
+        if (player.position.x >= this.x && player.position.x <= this.x + this.w * 50 - 20) {
             if (player.position.y + 45 === this.y) {
                 player.velocity.x = 1
                 player.position.y += 55

@@ -1,7 +1,7 @@
 var groundSprites
 var lavaGif
-var GRAVITY = 0.5
-var JUMP = -14
+var GRAVITY
+var JUMP
 var isGameOver
 var beforeEndGame 
 var score
@@ -30,7 +30,6 @@ var newWaveStart
 var newWaveTime
 var currWaveFinished
 var waveText
-var highScoreWaveBool
 
 var GAME_STATE
 var passedAllWaves
@@ -48,8 +47,8 @@ var onTop
 var zombie
 var heart = new Array()
 var lifeCounter
-var zombieAttackTime1 = 0
-var zombieAttackTime2 = 1
+var zombieAttackTime1
+var zombieAttackTime2
 
 var keys = new Array()
 var gates = new Array()
@@ -58,14 +57,13 @@ var gates = new Array()
 var portals = new Array()
 var onPortal
 let bullets = []
-let s = 40
+let s
 
 let playerSkin
 let playerSkinR
 
-var xk
 var drops = new Array()
-var dropCounter = 0
+var dropCounter 
 
 // PLAYER STUFF
 var player
@@ -83,7 +81,6 @@ let laraJump
 let laraAttack
 let laraDead
 
-let bulletImg
 let tombstoneImg
 let ground
 let arrowSignImg
@@ -95,14 +92,19 @@ let bush2Img
 let deadBushImg
 let signImg
 let crossTombstoneImg
+let bones1
+let bones2
+let bones3
+let bones4
 
-let zombie1
 let zombie1R
 
 let life
 let nolife
 let gate
 let openGate
+let finishGate
+let finshGateOpen
 let key
 var backgroundImg
 var teleportationPortalImg
@@ -117,6 +119,12 @@ var musSliderPosX
 var musSliderPosY
 var mus 
 var keySound
+
+var hitSound
+var hitSoundBool
+
+var endRoundSound
+var endRoundSoundBool
 
 var grizzly
 var playGrizzlyBool
@@ -150,59 +158,6 @@ var SetButtonX
 var SetButtonY
 
 function preload() {
-    // playerSkin = loadImage('assets/p-skin.png')
-    // playerSkinR = loadImage('assets/p-skinR.png')
-
-    playerIdle = loadAnimation('assets/adventure_girl/Idle (1).png',
-     'assets/adventure_girl/Idle (2).png',
-     'assets/adventure_girl/Idle (3).png',
-     'assets/adventure_girl/Idle (4).png',
-     'assets/adventure_girl/Idle (5).png',
-     'assets/adventure_girl/Idle (6).png',
-     'assets/adventure_girl/Idle (7).png',
-     'assets/adventure_girl/Idle (8).png',
-     'assets/adventure_girl/Idle (9).png',
-     'assets/adventure_girl/Idle (10).png'
-    )
-
-    playerRun = loadAnimation('assets/adventure_girl/Run (1).png',
-     'assets/adventure_girl/Run (2).png',
-     'assets/adventure_girl/Run (3).png',
-     'assets/adventure_girl/Run (4).png',
-     'assets/adventure_girl/Run (5).png',
-     'assets/adventure_girl/Run (6).png',
-     'assets/adventure_girl/Run (7).png',
-     'assets/adventure_girl/Run (8).png'
-    )
-
-    playerJump = loadAnimation('assets/adventure_girl/Jump (1).png',
-     'assets/adventure_girl/Jump (2).png',
-     'assets/adventure_girl/Jump (3).png',
-     'assets/adventure_girl/Jump (4).png',
-     'assets/adventure_girl/Jump (5).png',
-     'assets/adventure_girl/Jump (6).png',
-     'assets/adventure_girl/Jump (7).png',
-     'assets/adventure_girl/Jump (8).png',
-     'assets/adventure_girl/Jump (9).png',
-     'assets/adventure_girl/Jump (10).png'
-    )
-
-    playerShoot = loadAnimation('assets/adventure_girl/Shoot (1).png',
-     'assets/adventure_girl/Shoot (2).png',
-     'assets/adventure_girl/Shoot (3).png'
-    )
-
-    playerDead = loadAnimation('assets/adventure_girl/Dead (1).png',
-        'assets/adventure_girl/Dead (2).png',
-        'assets/adventure_girl/Dead (3).png',
-        'assets/adventure_girl/Dead (4).png',
-        'assets/adventure_girl/Dead (5).png',
-        'assets/adventure_girl/Dead (6).png',
-        'assets/adventure_girl/Dead (7).png',
-        'assets/adventure_girl/Dead (8).png',
-        'assets/adventure_girl/Dead (9).png',
-        'assets/adventure_girl/Dead (10).png'
-    )
 
     laraRun = loadAnimation('assets/laracrop/run1.png',
         'assets/laracrop/run2.png',
@@ -250,7 +205,6 @@ function preload() {
 )
 
     
-    //zombie1 = loadImage('assets/zombie1.png')
     zombie1R = loadImage('assets/zombie1R.png')
     backgroundImg = loadImage('assets/BG.png')
 
@@ -261,8 +215,14 @@ function preload() {
 
     gate = loadImage('assets/gate.png')
     openGate = loadImage('assets/openGate.png')
+    finishGate = loadImage('assets/finishGate.png')
+    finishGateOpen = loadImage('assets/finishGateOpen.png')
     key = loadImage('assets/key.png')
-    bulletImg = loadImage('assets/Bullet.png')
+
+    bones1 = loadImage('assets/bones1.png')
+    bones2 = loadImage('assets/bones2.png')
+    bones3 = loadImage('assets/bones3.png')
+    bones4 = loadImage('assets/bones4.png')
 
     ground = loadImage('assets/Tile (2).png')
     treeImg = loadImage('assets/Tree.png')
@@ -281,7 +241,9 @@ function preload() {
 
     // Sounds 
 
-    // mus = loadSound('sound/mehican_psy_trance_background.mp3')
+    mus = loadSound('sound/AFX_-_Laricheard_320kbps.mp3')
+    hitSound = loadSound('sound/hit_sound.mp3')
+    endRoundSound = loadSound('sound/finish.wav')
     grizzly = loadSound('sound/grizzly_scream.mp3')
     keySound = loadSound('sound/512137__beezlefm__key-sound.wav')
     pistolShotSound = loadSound('sound/266916__coolguy244e__gun-shotbullet-hit.mp3')
@@ -308,17 +270,24 @@ function startGame() {
     finishedAllRounds = false
     showKeyBool = false
     activateSuperpowerBool = false
-    highScoreWaveBool = false
     playGrizzlyBool = false
+    hitSoundBool = false
+    endRoundSoundBool = false
+    lastGateBool = false
     // -------------------- --------------------  --------------------
-
+    s = 40
+    dropCounter = 0
+    zombieAttackTime1 = 0
+    zombieAttackTime2 = 1
+    GRAVITY = 0.5
+    JUMP = -14
     TOTAL_ROUNDS = 5
     score = 0
     player_dir = 1      // Player direction for mirroring
     currentRound = 1
     currentWave = 1
     killStreak = 0
-    lifeCounter = 10
+    lifeCounter = 5
     currentLives = 10
 
     newWaveTime = millis()
@@ -330,27 +299,25 @@ function startGame() {
 
   
 
-    for(let i = 0; i < 1;  i++) {
-        portals[i] = new Portal(300, 505, 500, 497, 0.23, teleportationPortalImg)    
-    }
+    
 
     for(let i = 0; i < TOTAL_ROUNDS;  i++) {
-        gates[i] = new Gate(2000*(i+1), 460, false)
+        if (i === TOTAL_ROUNDS-1) gates[i] = new Gate(2000*(i+1), 460, false, true)
+        else gates[i] = new Gate(2000*(i+1), 460, false, false)
+        
     }
 
         // Player sprite and animations 
     player = createSprite(100, 515)
-    /*player.addAnimation('Idle', playerIdle)
-    player.addAnimation('Run', playerRun)
-    player.addAnimation('Jump', playerJump)
-    player.addAnimation('Shoot', playerShoot)
-    player.addAnimation('Dead', playerDead)*/
     player.addAnimation('LaraStand', laraStand)
     player.addAnimation('LaraRun', laraRun)
     player.addAnimation('LaraJump', laraJump)
     player.addAnimation('LaraAttack', laraAttack)
     player.addAnimation('LaraDead', laraDead)
     player.scale = 1.8
+
+
+    createPortals()
 
     for (var n = -10; n < (width / 50 + 1) - 8; n++) {
         var groundSprite = createSprite(n * 50, height - 25, 50, 50)
@@ -366,7 +333,8 @@ function startGame() {
 
     createPlatforms()
 
-    for(let i = 0; i < 10; i++) {
+
+    for(let i = 0; i < 5; i++) {
         heart[i] = createSprite()
         heart[i].addImage(life)
     }
@@ -381,7 +349,6 @@ function startGame() {
     }
 
     createLavaPools()
-
         
 }
 
@@ -403,7 +370,7 @@ function displayStartScreen() {
     textSize(25)
     textAlign(CENTER)
     textFont('Rubik Doodle Shadow')
-    text("Created by Dimitris Drys, Giannis Mpoympalis, Giorgos Vlachos", player.position.x, height/2 + 75) 
+    text("Created by Dimitris Dris, Giannis Mpoympalis, Giorgos Vlachos", player.position.x, height/2 + 75) 
 
     fill(255, 0, 0)
     textSize(35)
@@ -421,13 +388,33 @@ function createPlatforms() {
     platforms[4] = new Platform(gates[1].x - 920, player.position.y-110*2, 260, 20)
     platforms[5] = new Platform(gates[1].x - 520, player.position.y-110*1, 180, 20)
     platforms[6] = new Platform(gates[2].x - 1120, player.position.y-110*1.5, 150, 20)
-    platforms[7] = new Platform(gates[2].x - 720, player.position.y-110*2.5, 260, 20)
+    platforms[7] = new Platform(gates[2].x - 780, player.position.y-110*2.5, 260, 20)
+    platforms[8] = new Platform(gates[3].x - 1100, 400, 100, 20)
+    platforms[9] = new Platform(gates[3].x - 900, 400, 100, 20)
+
+    platforms[10] = new Platform(gates[4].x - 1500, 450, 100, 20)
+    platforms[11] = new Platform(gates[4].x - 1200, 350, 100, 20)
+    platforms[12] = new Platform(gates[4].x - 900, 350, 100, 20)
+    platforms[13] = new Platform(gates[4].x - 600, 460, 100, 20)
+    platforms[14] = new Platform(gates[4].x - 220, 525, 100, 20)
 }
 
 function createLavaPools() {
     lavaPools[0] = new Lava(gates[1].x-1100, 550, 6)
     lavaPools[1] = new Lava(gates[2].x-1160, 550, 9)
+    lavaPools[2] = new Lava(gates[3].x-1100, 550, 7)
+
+    lavaPools[3] = new Lava(gates[4].x-1600, 550, 9)
+    lavaPools[4] = new Lava(gates[4].x-1000, 550, 9)
+    lavaPools[5] = new Lava(gates[4].x-200, 550, 4)
 }
+
+function createPortals() {
+    // portals[0] = new Portal(300, 505, gates[4].x - 1700, -6000, 0.23, teleportationPortalImg)    
+    portals[1] = new Portal(gates[3].x-1460, 505, gates[3].x-480, 505, 0.23, teleportationPortalImg)    
+}
+
+
 
 function drawObjects() {
 
@@ -446,6 +433,7 @@ function drawObjects() {
     image(deadBushImg, gates[0].x-1650, 505-35, 100, 80)
     image(signImg, gates[0].x-1490, 505-50, 80, 100)
     image(treeImg, gates[0].x-1450, 515-320, 270+10, 370)
+    image(bones1, gates[0].x-1350, 497, 100, 80)
     image(bush1Img, gates[0].x-1050, 505-5, 80, 50)
     image(deadBushImg, gates[0].x-700, 505-35, 100, 80)
     image(crossTombstoneImg, gates[0].x-730, 505-50, 70, 100)
@@ -483,27 +471,40 @@ function drawObjects() {
     // --------------------- ROUND 4 --------------------- 
     image(arrowSignImg, gates[3].x-200, 505-30, 80, 80)
     image(deadBushImg, gates[3].x-1650, 505-35, 100, 80)
-    image(bush2Img, gates[3].x-1460, 505-5, 80, 50)
+    image(bones1, gates[3].x-1650, 497, 100, 80)
     image(bush2Img, gates[3].x-1270, 505-5, 80, 50)
     image(treeImg, gates[3].x-1450, 515-320, 270, 370)
-    image(bush1Img, gates[3].x-1050, 505-5, 80, 50)
+    image(bones2, gates[3].x-1450, 300, 80, 40)
+    image(bones2, gates[3].x-1320, 265, 80, 40)
+    image(bones2, gates[3].x-1270, 505-5, 80, 50)
+    image(bones4, gates[3].x-1270, 520, 80, 50)
     image(deadBushImg, gates[3].x-700, 505-35, 100, 80)
+    image(bones3, gates[3].x-690, 505-35, 70, 70)
     image(crossTombstoneImg, gates[3].x-730, 505-50, 70, 100)
+    image(bones1, gates[3].x-750, 520, 80, 40)
     image(treeImg, gates[3].x-700, 515-280, 230, 330)
-    image(skeletonImg, gates[3].x-480, 505+10, 80, 40)
+    image(bones3, gates[3].x-600, 280, 80, 80)
+    image(bones1, gates[3].x-330, 505+20, 80, 40)
+    image(bones2, gates[3].x-100, 505+17, 80, 40)
+    image(bones3, gates[3].x-50, 505+25, 80, 40)
+    image(bones3, gates[3].x-380, 505+25, 80, 40)
+    image(bones3, gates[3].x-310, 505+25, 80, 40)
+
     // --------------------- END ROUND 4 ---------------------
 
     // --------------------- ROUND 5 --------------------- 
-    image(arrowSignImg, gates[4].x-200, 505-30, 80, 80)
-    image(deadBushImg, gates[4].x-1650, 505-35, 100, 80)
-    image(bush2Img, gates[4].x-1460, 505-5, 80, 50)
-    image(bush2Img, gates[4].x-1270, 505-5, 80, 50)
-    image(treeImg, gates[4].x-1450, 515-320, 270, 370)
-    image(bush1Img, gates[4].x-1050, 505-5, 80, 50)
-    image(deadBushImg, gates[4].x-700, 505-35, 100, 80)
-    image(crossTombstoneImg, gates[4].x-730, 505-50, 70, 100)
-    image(treeImg, gates[4].x-700, 515-280, 230, 330)
-    image(skeletonImg, gates[4].x-480, 505+10, 80, 40)
+
+    image(deadBushImg, gates[4].x-1725, 505-35, 90, 90)
+    image(bones1, gates[4].x-1725, 500, 70, 70)
+    image(bones4, gates[4].x-1700, 525, 80, 50)
+    image(bones4, gates[4].x-1125, 520, 80, 50)
+    image(bones4, gates[4].x-1175, 525, 80, 50)
+    image(bones2, gates[4].x-1150, 515, 80, 50)
+    image(bones1, gates[4].x-500, 510, 70, 70)
+    image(bones2, gates[4].x-550, 500, 70, 70)
+
+    image(stopImg, gates[4].x + 600, 505-130, 120, 180)
+
     // --------------------- END ROUND 5 ---------------------
 
 
@@ -514,10 +515,8 @@ function drawObjects() {
 
 function createSettingsButton() {
 
-    SetButtonX = 1375
-    SetButtonY = 23
-    console.log('width: '+width)
-    console.log('height: '+height)
+    SetButtonX = 0
+    SetButtonY = 20
 
     settingsButton = createImg('assets/settings.avif')
 
@@ -536,7 +535,7 @@ function buttonPressed() {
 function createSliders() {
     musSliderPosX = (width / 2)
     musSliderPosY = (height / 3.5) + 70
-    musSlider = createSlider(0, 1, 0.4, 0.01);           // Arguments: min, max, default, step
+    musSlider = createSlider(0, 1, 0.2, 0.01);           // Arguments: min, max, default, step
     musSlider.position( musSliderPosX, musSliderPosY );
     musSlider.input( () => {
         mus.setVolume(musSlider.value())
@@ -554,7 +553,6 @@ function createSliders() {
         superPowerSound.setVolume(audioSlider.value())
         grizzly.setVolume(audioSlider.value())
         keySound.setVolume(audioSlider.value())
-        pistolShotSound.setVolume(audioSlider.value())
         playerJumpSound.setVolume(audioSlider.value())
         openGateSound.setVolume(audioSlider.value())
     })
@@ -659,7 +657,6 @@ function startNewWave() {
         waveText = true
         newWaveStart = true
         if (currentWave === 4) {
-            console.log('in')
             showKeyBool = true
             currentWave = 1;
             passedAllWaves = true
@@ -667,10 +664,11 @@ function startNewWave() {
             currentRound++;
             if (currentRound === TOTAL_ROUNDS + 1) {
                 finishedAllRounds = true
+                
+                endRoundSoundBool = true
                 currentRound = TOTAL_ROUNDS
             }
     
-            console.log('new round: ' + currentRound)
             currRoundStarted = false
         } else {
             if (!finishedAllRounds) {           
@@ -680,8 +678,7 @@ function startNewWave() {
             
         }
     } else {
-        //setTimeout(spawnZombies, 2000)
-        spawnZombies(2*currentWave)
+        spawnZombies(6)
     }
     
        
@@ -776,10 +773,6 @@ function getRandomNonZeroInRange(min, max) {
     return randomNumber;
 }
 
-function highScoreWave() {
-
-}
-
 function displayEndScreen() {
     fill(255, 0, 0)
     textAlign(CENTER)
@@ -797,8 +790,6 @@ function displayEndScreen() {
 }
 
 function endGame() {
-    //grizzly.play()
-    console.log(heart)
     GAME_STATE = 'END'
     isGameOver = true
 }
